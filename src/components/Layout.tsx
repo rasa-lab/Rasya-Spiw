@@ -18,7 +18,7 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const Layout: React.FC = () => {
+export const Layout: React.FC = React.memo(() => {
   const location = useLocation();
   const [showMonitor, setShowMonitor] = React.useState(false);
 
@@ -43,7 +43,7 @@ export const Layout: React.FC = () => {
             <Settings className="w-5 h-5 text-zinc-400" />
           </button>
           <h1 className="font-serif text-lg font-bold tracking-tight text-emerald-500">
-            TESTING SYSTEM
+            NANO SUITE
           </h1>
         </div>
         <div className="flex items-center gap-2">
@@ -106,12 +106,12 @@ export const Layout: React.FC = () => {
       </AnimatePresence>
 
       {/* Main Content */}
-      <main className="pt-20 px-4 max-w-lg mx-auto">
+      <main className="pt-20 px-4 max-w-lg mx-auto relative z-10">
         <Outlet />
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 h-20 glass-darker px-2 pb-safe">
+      <nav className="fixed bottom-0 left-0 right-0 z-[100] h-20 glass-darker px-2 pb-safe">
         <div className="flex items-center justify-around h-full max-w-lg mx-auto">
           {navItems.map((item) => (
             <NavLink
@@ -130,4 +130,4 @@ export const Layout: React.FC = () => {
       </nav>
     </div>
   );
-};
+});

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Activity, 
@@ -14,27 +14,25 @@ import {
   AlertCircle,
   RefreshCw,
   Cpu,
-  Languages
+  Languages,
+  User,
+  MapPin,
+  Briefcase,
+  Smartphone,
+  Bell,
+  ShieldAlert,
+  Info
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
-const Dashboard: React.FC = () => {
-  const [showWelcome, setShowWelcome] = useState(false);
-  const [connections, setConnections] = useState([
-    { name: 'Supabase', status: 'online', latency: '42ms', icon: Database },
-    { name: 'Firebase', status: 'online', latency: '124ms', icon: Server },
-    { name: 'Appwrite', status: 'online', latency: '89ms', icon: Cloud },
-    { name: 'Vercel', status: 'online', latency: '215ms', icon: Globe },
-  ]);
-
+const Dashboard: React.FC = memo(() => {
+  const { user } = useAuth();
   const [testing, setTesting] = useState(false);
-
-  useEffect(() => {
-    const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
-    if (!hasSeenWelcome) {
-      setShowWelcome(true);
-      localStorage.setItem('hasSeenWelcome', 'true');
-    }
-  }, []);
+  const [notifications, setNotifications] = useState([
+    { id: 1, type: 'security', msg: 'X Zero-Antivirus: System Secure', time: 'Just now' },
+    { id: 2, type: 'info', msg: 'New version v2.5.0 available', time: '2h ago' },
+    { id: 3, type: 'warning', msg: 'High CPU usage detected in Core', time: '5h ago' },
+  ]);
 
   const testAll = () => {
     setTesting(true);
@@ -42,145 +40,139 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 pb-12">
-      <AnimatePresence>
-        {showWelcome && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm"
+    <div className="space-y-6 pb-20">
+      {/* Header */}
+      <div className="flex justify-between items-center px-2">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">NANO SUITE</h1>
+          <p className="text-[10px] text-zinc-500 font-mono uppercase tracking-widest">Version 2.5.0 • Stable Build</p>
+        </div>
+        <div className="flex gap-2">
+          <button 
+            onClick={testAll}
+            className={`p-3 rounded-2xl glass border border-white/5 ${testing ? 'animate-spin' : ''}`}
           >
-            <motion.div 
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              className="glass p-8 rounded-[2rem] max-w-sm w-full text-center space-y-6 border border-emerald-500/20 shadow-2xl shadow-emerald-500/10"
-            >
-              <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto border border-emerald-500/20">
-                <ShieldCheck className="w-10 h-10 text-emerald-500" />
-              </div>
-              <div className="space-y-2">
-                <h2 className="text-2xl font-serif font-bold text-white">Welcome to Nano</h2>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  Your advanced toolkit for cyber intelligence, system diagnostics, and digital exploration. 
-                  Experience the power of AI-driven tools with zero simulation.
-                </p>
-              </div>
-              <button 
-                onClick={() => setShowWelcome(false)}
-                className="w-full py-4 bg-emerald-500 text-black font-bold rounded-2xl shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 transition-colors"
-              >
-                Get Started
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-serif font-bold">Dashboard</h1>
-        <button 
-          onClick={testAll}
-          className={`p-2 rounded-full glass ${testing ? 'animate-spin' : ''}`}
-        >
-          <RefreshCw className="w-4 h-4" />
-        </button>
-      </div>
-
-      {/* Connection Grid */}
-      <div className="grid grid-cols-2 gap-4">
-        {connections.map((conn) => (
-          <motion.div 
-            key={conn.name}
-            whileHover={{ y: -5 }}
-            className="glass p-5 rounded-3xl space-y-3 relative overflow-hidden group"
-          >
-            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-              <conn.icon className="w-12 h-12" />
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="p-2 bg-white/5 rounded-xl">
-                <conn.icon className="w-4 h-4 text-emerald-400" />
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[8px] font-bold text-emerald-500 uppercase">Online</span>
-              </div>
-            </div>
-            <div>
-              <h3 className="text-sm font-bold">{conn.name}</h3>
-              <p className="text-[10px] text-zinc-500 font-mono">{conn.latency}</p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="glass p-5 rounded-3xl space-y-2">
-          <div className="flex items-center gap-2 text-zinc-500">
-            <Activity className="w-4 h-4" />
-            <span className="text-[10px] font-bold uppercase tracking-widest">Uptime</span>
-          </div>
-          <div className="text-2xl font-mono font-bold text-emerald-400">99.9%</div>
-        </div>
-        <div className="glass p-5 rounded-3xl space-y-2">
-          <div className="flex items-center gap-2 text-zinc-500">
-            <Terminal className="w-4 h-4" />
-            <span className="text-[10px] font-bold uppercase tracking-widest">API Calls</span>
-          </div>
-          <div className="text-2xl font-mono font-bold text-emerald-400">1,284</div>
+            <RefreshCw className="w-4 h-4 text-emerald-500" />
+          </button>
         </div>
       </div>
 
-      {/* Network Speed Test */}
-      <SpeedTestSection />
-
-      {/* Antivirus Section */}
-      <section className="glass p-6 rounded-3xl space-y-4">
-        <div className="flex items-center gap-2 text-red-500">
-          <ShieldCheck className="w-4 h-4" />
-          <h2 className="text-sm font-bold uppercase tracking-widest">System Security</h2>
+      {/* Owner Profile Section */}
+      <section className="glass p-6 rounded-[2.5rem] border border-emerald-500/20 bg-emerald-500/[0.02] relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-8 opacity-5">
+          <ShieldCheck className="w-24 h-24" />
         </div>
-        <div className="flex items-center justify-between p-4 bg-zinc-950/50 rounded-2xl border border-white/5">
-          <div className="flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs font-medium">Antivirus Active</span>
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center relative">
+            <User className="w-8 h-8 text-emerald-500" />
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full border-4 border-zinc-950 flex items-center justify-center">
+              <CheckCircle2 className="w-3 h-3 text-white" />
+            </div>
           </div>
-          <button className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest hover:underline">Scan Device</button>
+          <div>
+            <div className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">System Owner</div>
+            <h2 className="text-lg font-bold text-white">@syaaedukasiiea0</h2>
+          </div>
         </div>
-      </section>
-
-      {/* System Info */}
-      <section className="glass p-6 rounded-3xl space-y-4">
-        <div className="flex items-center gap-2 text-blue-400">
-          <Server className="w-4 h-4" />
-          <h2 className="text-sm font-bold uppercase tracking-widest">System Diagnostics</h2>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
+        
+        <div className="grid grid-cols-2 gap-2 mt-6">
           {[
-            { label: 'Cores', val: navigator.hardwareConcurrency || 'N/A', icon: Cpu },
-            { label: 'Memory', val: (navigator as any).deviceMemory ? `${(navigator as any).deviceMemory} GB` : 'N/A', icon: Database },
-            { label: 'Platform', val: navigator.platform, icon: Globe },
-            { label: 'Language', val: navigator.language.toUpperCase(), icon: Languages },
-          ].map((s, i) => (
-            <div key={i} className="bg-zinc-950/50 p-3 rounded-2xl border border-white/5 flex items-center gap-3">
-              <div className="p-2 bg-white/5 rounded-lg">
-                <s.icon className="w-3 h-3 text-blue-400" />
-              </div>
+            { icon: Smartphone, label: 'Phone', val: '08812857601' },
+            { icon: Briefcase, label: 'Job', val: 'Pelajar' },
+            { icon: MapPin, label: 'Location', val: 'Tegal, ID' },
+            { icon: Globe, label: 'TikTok', val: '@syaaedukasiiea0' },
+          ].map((item, i) => (
+            <div key={i} className="bg-zinc-950/40 p-3 rounded-xl border border-white/5 flex items-center gap-3">
+              <item.icon className="w-3 h-3 text-emerald-500/50" />
               <div>
-                <div className="text-[8px] text-zinc-500 uppercase font-bold">{s.label}</div>
-                <div className="text-xs font-mono font-bold">{s.val}</div>
+                <div className="text-[7px] text-zinc-600 uppercase font-black tracking-tighter">{item.label}</div>
+                <div className="text-[10px] font-bold text-zinc-300 truncate max-w-[80px]">{item.val}</div>
               </div>
             </div>
           ))}
         </div>
       </section>
+
+      {/* Notifications */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between px-2">
+          <div className="flex items-center gap-2 text-zinc-500">
+            <Bell className="w-3 h-3" />
+            <h2 className="text-[10px] font-bold uppercase tracking-widest">Recent Notifications</h2>
+          </div>
+          <span className="text-[8px] text-zinc-600 font-bold uppercase">View All</span>
+        </div>
+        <div className="space-y-2">
+          {notifications.map((n) => (
+            <div key={n.id} className="glass p-3 rounded-2xl border border-white/5 flex items-center gap-3">
+              <div className={`p-2 rounded-lg ${n.type === 'security' ? 'bg-emerald-500/10 text-emerald-500' : n.type === 'warning' ? 'bg-red-500/10 text-red-500' : 'bg-blue-500/10 text-blue-500'}`}>
+                {n.type === 'security' ? <ShieldCheck className="w-3 h-3" /> : n.type === 'warning' ? <ShieldAlert className="w-3 h-3" /> : <Info className="w-3 h-3" />}
+              </div>
+              <div className="flex-1">
+                <div className="text-[10px] font-bold text-zinc-200">{n.msg}</div>
+                <div className="text-[8px] text-zinc-500">{n.time}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* System Optimization (X Zero-Antivirus) */}
+      <section className="glass p-5 rounded-[2rem] border border-red-500/20 bg-red-500/[0.02] space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-red-500">
+            <ShieldAlert className="w-4 h-4" />
+            <h2 className="text-xs font-bold uppercase tracking-widest">X Zero-Antivirus</h2>
+          </div>
+          <div className="px-2 py-0.5 bg-red-500 text-white text-[8px] font-bold rounded-full uppercase">Active</div>
+        </div>
+        <div className="p-3 bg-zinc-950/50 rounded-xl border border-white/5 flex items-center justify-between">
+          <div className="space-y-1">
+            <div className="text-[10px] font-bold text-zinc-300">DDoS & XSS Protection</div>
+            <div className="text-[8px] text-zinc-500 uppercase">Real-time monitoring active</div>
+          </div>
+          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+        </div>
+      </section>
+
+      {/* Dev Check / Hardware Specs */}
+      <section className="space-y-3">
+        <div className="flex items-center gap-2 px-2 text-zinc-500">
+          <Cpu className="w-3 h-3" />
+          <h2 className="text-[10px] font-bold uppercase tracking-widest">Hardware Diagnostics</h2>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { label: 'Cores', val: navigator.hardwareConcurrency || 'N/A', icon: Cpu, color: 'text-blue-400' },
+            { label: 'Memory', val: (navigator as any).deviceMemory ? `${(navigator as any).deviceMemory} GB` : 'N/A', icon: Database, color: 'text-emerald-400' },
+            { label: 'Platform', val: navigator.platform, icon: Globe, color: 'text-purple-400' },
+            { label: 'Battery', val: '94%', icon: Zap, color: 'text-yellow-400' },
+          ].map((s, i) => (
+            <div key={i} className="glass p-4 rounded-2xl border border-white/5 flex items-center gap-3">
+              <div className={`p-2 bg-white/5 rounded-xl ${s.color}`}>
+                <s.icon className="w-3 h-3" />
+              </div>
+              <div>
+                <div className="text-[8px] text-zinc-500 uppercase font-bold">{s.label}</div>
+                <div className="text-[10px] font-mono font-bold text-zinc-200">{s.val}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Network Speed */}
+      <SpeedTestSection />
+      
+      {/* Footer Version */}
+      <div className="text-center pt-4 opacity-20">
+        <div className="text-[8px] font-mono uppercase tracking-[0.5em]">Nano Suite v2.5.0 Build 20260304</div>
+      </div>
     </div>
   );
-};
+});
 
-const SpeedTestSection = () => {
+const SpeedTestSection = memo(() => {
   const [testing, setTesting] = useState(false);
   const [progress, setProgress] = useState(0);
   const [results, setResults] = useState({ ping: '12ms', down: '84.2', up: '22.1' });
@@ -276,6 +268,6 @@ const SpeedTestSection = () => {
       </button>
     </section>
   );
-};
+});
 
 export default Dashboard;
