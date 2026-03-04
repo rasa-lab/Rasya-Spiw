@@ -1,5 +1,5 @@
 {
-  "name": "TESTING SYSTEM",
-  "description": "A comprehensive multi-tool platform featuring AI chat, system testing, real-time data, and specialized utilities.",
+  "name": "NANO SUITE PRO",
+  "description": "Professional Cyber Intelligence & System Execution Toolkit. Features Nex GPT Protocol, Recoil Security, and Advanced System Engineering.",
   "requestFramePermissions": ["geolocation", "camera", "microphone"]
 }

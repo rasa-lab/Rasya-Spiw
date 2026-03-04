@@ -161,6 +161,30 @@ const Dashboard: React.FC = memo(() => {
         </div>
       </section>
 
+      {/* Cyber Data Section */}
+      <section className="space-y-3">
+        <div className="flex items-center gap-2 px-2 text-zinc-500">
+          <Terminal className="w-3 h-3" />
+          <h2 className="text-[10px] font-bold uppercase tracking-widest">Cyber Intelligence Data</h2>
+        </div>
+        <div className="glass p-5 rounded-[2rem] border border-emerald-500/20 bg-emerald-500/[0.02] grid grid-cols-2 gap-4">
+          {[
+            { label: 'Public IP', val: user?.ip || 'Scanning...', icon: Globe, color: 'text-blue-400' },
+            { label: 'BSSID', val: user?.bssid || '00:1A:2B:3C:4D:5E', icon: Wifi, color: 'text-emerald-400' },
+            { label: 'SSID', val: user?.ssid || 'NANO_SECURE', icon: Wifi, color: 'text-cyan-400' },
+            { label: 'Status', val: 'ONLINE', icon: Activity, color: 'text-emerald-500' },
+          ].map((s, i) => (
+            <div key={i} className="space-y-1">
+              <div className="flex items-center gap-2">
+                <s.icon className={`w-3 h-3 ${s.color}`} />
+                <span className="text-[7px] text-zinc-600 uppercase font-black tracking-tighter">{s.label}</span>
+              </div>
+              <div className="text-[10px] font-mono font-bold text-zinc-300 truncate">{s.val}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Network Speed */}
       <SpeedTestSection />
       

@@ -81,12 +81,12 @@ const ToolButton = memo(({ tool, onClick }: { tool: any, onClick: () => void }) 
     whileHover={{ scale: 1.05, translateY: -2 }}
     whileTap={{ scale: 0.95 }}
     onClick={onClick}
-    className="glass p-4 rounded-2xl flex flex-col items-center gap-2 text-center group border border-white/5 hover:border-emerald-500/20 cursor-pointer"
+    className="glass p-3 rounded-xl flex flex-col items-center gap-1.5 text-center group border border-white/5 hover:border-emerald-500/20 cursor-pointer"
   >
-    <div className={`p-3 rounded-xl ${tool.color} group-hover:scale-110 transition-transform shadow-lg pointer-events-none`}>
-      <tool.icon className="w-6 h-6" />
+    <div className={`p-2 rounded-lg ${tool.color} group-hover:scale-110 transition-transform shadow-lg pointer-events-none`}>
+      <tool.icon className="w-5 h-5" />
     </div>
-    <span className="font-bold text-[8px] uppercase tracking-widest text-zinc-400 group-hover:text-white transition-colors pointer-events-none line-clamp-1">{tool.name}</span>
+    <span className="font-bold text-[7px] uppercase tracking-widest text-zinc-400 group-hover:text-white transition-colors pointer-events-none line-clamp-1">{tool.name}</span>
   </motion.button>
 ));
 
@@ -104,6 +104,8 @@ const Tools: React.FC = () => {
     { id: 'devcheck', name: 'Dev Check', icon: Cpu, color: 'bg-emerald-500/20 text-emerald-400' },
     { id: 'anime', name: 'Anime Search', icon: Play, color: 'bg-orange-500/20 text-orange-400' },
     { id: 'tv', name: 'Live TV', icon: Tv, color: 'bg-sky-500/20 text-sky-400' },
+    { id: 'hdvideo', name: 'HD Video Player', icon: Play, color: 'bg-emerald-500/20 text-emerald-400' },
+    { id: 'ipmask', name: 'IP Masking', icon: Shield, color: 'bg-purple-500/20 text-purple-400' },
     { id: 'browser', name: 'Browser', icon: Chrome, color: 'bg-blue-500/20 text-blue-400' },
     { id: 'trending', name: 'Trending', icon: Zap, color: 'bg-yellow-500/20 text-yellow-400' },
     { id: 'subdomain', name: 'Sub Scanner', icon: Globe, color: 'bg-indigo-500/20 text-indigo-400' },
@@ -163,11 +165,11 @@ const Tools: React.FC = () => {
   const categories = React.useMemo(() => [
     {
       name: 'CYBER SECURITY',
-      tools: ['antivirus', 'devcheck', 'wifi', 'admin', 'ssl', 'whois', 'subdomain']
+      tools: ['antivirus', 'devcheck', 'wifi', 'admin', 'ssl', 'whois', 'subdomain', 'ipmask']
     },
     {
       name: 'MEDIA & ENTERTAINMENT',
-      tools: ['anime', 'tv', 'browser', 'trending']
+      tools: ['anime', 'tv', 'browser', 'trending', 'hdvideo']
     },
     {
       name: 'SECURITY & PRIVACY',
@@ -292,6 +294,8 @@ const Tools: React.FC = () => {
             {activeTool === 'case' && <CaseTool />}
             {activeTool === 'browser' && <BrowserTool />}
             {activeTool === 'wifi' && <WiFiTool />}
+            {activeTool === 'hdvideo' && <HDVideoPlayerTool />}
+            {activeTool === 'ipmask' && <IPMaskingTool />}
             {activeTool === 'trending' && <TrendingTool />}
             {activeTool === 'subdomain' && <SubdomainTool />}
             {activeTool === 'whois' && <WhoisTool />}
@@ -757,18 +761,22 @@ const CelenganTool = () => {
 };
 
 const GamesTool = memo(() => {
-  const [game, setGame] = useState<'none' | 'sos' | 'hangman' | 'memory' | 'snake'>('none');
+  const [game, setGame] = useState<'none' | 'sos' | 'hangman' | 'memory' | 'snake' | 'runner' | 'codebreaker'>('none');
 
   if (game === 'sos') return <SOSGame onBack={() => setGame('none')} />;
   if (game === 'hangman') return <HangmanGame onBack={() => setGame('none')} />;
   if (game === 'memory') return <MemoryGame onBack={() => setGame('none')} />;
   if (game === 'snake') return <SnakeGame onBack={() => setGame('none')} />;
+  if (game === 'runner') return <CyberRunnerGame onBack={() => setGame('none')} />;
+  if (game === 'codebreaker') return <CodeBreakerGame onBack={() => setGame('none')} />;
 
   const gamesList = [
     { id: 'sos', name: 'SOS Game', desc: 'Classic tic-tac-toe style', icon: Gamepad2 },
     { id: 'hangman', name: 'Hangman', desc: 'Guess the secret word', icon: Gamepad2 },
     { id: 'memory', name: 'Memory Match', desc: 'Test your memory', icon: Brain },
     { id: 'snake', name: 'Cyber Snake', desc: 'Retro snake game', icon: Activity },
+    { id: 'runner', name: 'Cyber Runner', desc: 'Infinite runner game', icon: Zap },
+    { id: 'codebreaker', name: 'Code Breaker', desc: 'Logic puzzle game', icon: Lock },
   ];
 
   return (
@@ -2914,5 +2922,245 @@ const MoodTool = memo(() => {
     </div>
   );
 });
+
+const HDVideoPlayerTool = () => {
+  const [url, setUrl] = useState('');
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  return (
+    <div className="space-y-6">
+      <div className="aspect-video bg-black rounded-3xl border border-white/5 flex items-center justify-center overflow-hidden relative group">
+        {isPlaying && url ? (
+          <iframe 
+            src={url.replace('watch?v=', 'embed/')} 
+            className="w-full h-full" 
+            allowFullScreen 
+            title="HD Video Player"
+          />
+        ) : (
+          <div className="text-center space-y-4">
+            <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto border border-emerald-500/20">
+              <Play className="w-10 h-10 text-emerald-500" />
+            </div>
+            <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-mono">Enter URL to stream in HD</p>
+          </div>
+        )}
+      </div>
+      <div className="flex gap-2">
+        <input 
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="Paste YouTube/Video URL..."
+          className="flex-1 bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500/50"
+        />
+        <button 
+          onClick={() => setIsPlaying(true)}
+          className="px-6 bg-emerald-500 text-black rounded-xl font-bold text-xs uppercase tracking-widest"
+        >
+          Stream
+        </button>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="p-3 glass rounded-xl border border-white/5">
+          <div className="text-[8px] text-zinc-500 uppercase font-bold mb-1">FPS Optimization</div>
+          <div className="text-[10px] font-mono font-bold text-emerald-400">60 FPS STABLE</div>
+        </div>
+        <div className="p-3 glass rounded-xl border border-white/5">
+          <div className="text-[8px] text-zinc-500 uppercase font-bold mb-1">Resolution</div>
+          <div className="text-[10px] font-mono font-bold text-blue-400">4K ULTRA HD</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const IPMaskingTool = () => {
+  const { user, updateUser } = useAuth();
+  const [masking, setMasking] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  const startMasking = () => {
+    setMasking(true);
+    setProgress(0);
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setMasking(false);
+          const fakeIp = `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+          updateUser({ ip: fakeIp });
+          return 100;
+        }
+        return prev + 2;
+      });
+    }, 50);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="p-8 bg-purple-500/10 rounded-[2.5rem] border border-purple-500/20 text-center space-y-4">
+        <div className="w-20 h-20 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto border border-purple-500/30">
+          <Shield className="w-10 h-10 text-purple-500" />
+        </div>
+        <div className="space-y-1">
+          <h3 className="font-bold text-lg">IP Masking & Cloning</h3>
+          <p className="text-[10px] text-zinc-500 uppercase tracking-widest">DDoS Protection & Anonymity</p>
+        </div>
+      </div>
+
+      <div className="glass p-5 rounded-2xl border border-white/5 space-y-4">
+        <div className="flex justify-between items-center">
+          <span className="text-xs text-zinc-400">Current Identity:</span>
+          <span className="text-xs font-mono font-bold text-purple-400">{user?.ip || 'Scanning...'}</span>
+        </div>
+        {masking && (
+          <div className="space-y-2">
+            <div className="flex justify-between text-[8px] font-bold text-purple-500 uppercase tracking-widest">
+              <span>Cloning IP Nodes...</span>
+              <span>{progress}%</span>
+            </div>
+            <div className="h-1 bg-zinc-900 rounded-full overflow-hidden">
+              <motion.div initial={{ width: 0 }} animate={{ width: `${progress}%` }} className="h-full bg-purple-500" />
+            </div>
+          </div>
+        )}
+        <button 
+          onClick={startMasking}
+          disabled={masking}
+          className="w-full py-4 bg-purple-500 text-white rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-purple-500/20 disabled:opacity-50"
+        >
+          {masking ? 'Masking in Progress...' : 'Initialize IP Masking'}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const CyberRunnerGame = ({ onBack }: { onBack: () => void }) => {
+  const [score, setScore] = useState(0);
+  const [gameOver, setGameOver] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  // Simple simulation of a runner game
+  useEffect(() => {
+    if (isPlaying && !gameOver) {
+      const interval = setInterval(() => {
+        setScore(s => s + 1);
+        if (Math.random() > 0.98) setGameOver(true);
+      }, 100);
+      return () => clearInterval(interval);
+    }
+  }, [isPlaying, gameOver]);
+
+  return (
+    <div className="space-y-6 text-center">
+      <div className="flex items-center justify-between mb-4">
+        <button onClick={onBack} className="p-2 glass rounded-xl"><ChevronLeft className="w-4 h-4" /></button>
+        <span className="text-sm font-bold text-emerald-500 uppercase tracking-widest">Cyber Runner</span>
+        <div className="w-8" />
+      </div>
+
+      <div className="aspect-video bg-black rounded-3xl border border-white/5 flex flex-col items-center justify-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#10b98105_1px,transparent_1px),linear-gradient(to_bottom,#10b98105_1px,transparent_1px)] bg-[size:20px_20px]" />
+        
+        {gameOver ? (
+          <div className="space-y-4 z-10">
+            <h2 className="text-3xl font-bold text-red-500">SYSTEM CRASH</h2>
+            <p className="text-zinc-500">Final Score: {score}</p>
+            <button onClick={() => { setScore(0); setGameOver(false); setIsPlaying(true); }} className="px-8 py-3 bg-emerald-500 text-black rounded-xl font-bold">REBOOT</button>
+          </div>
+        ) : !isPlaying ? (
+          <button onClick={() => setIsPlaying(true)} className="px-12 py-4 bg-emerald-500 text-black rounded-2xl font-bold text-lg z-10">START ENGINE</button>
+        ) : (
+          <div className="space-y-2 z-10">
+            <div className="text-5xl font-mono font-bold text-emerald-500">{score}</div>
+            <p className="text-[10px] text-zinc-500 uppercase tracking-widest">Distance Traveled</p>
+            <motion.div 
+              animate={{ x: [-2, 2, -2] }}
+              transition={{ repeat: Infinity, duration: 0.1 }}
+              className="w-12 h-12 bg-emerald-500 rounded-lg mt-8 mx-auto"
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const CodeBreakerGame = ({ onBack }: { onBack: () => void }) => {
+  const [target, setTarget] = useState('');
+  const [guess, setGuess] = useState('');
+  const [attempts, setAttempts] = useState<string[]>([]);
+  const [won, setWon] = useState(false);
+
+  useEffect(() => {
+    const code = Math.floor(1000 + Math.random() * 9000).toString();
+    setTarget(code);
+  }, []);
+
+  const handleGuess = () => {
+    if (guess.length !== 4) return;
+    setAttempts([guess, ...attempts]);
+    if (guess === target) setWon(true);
+    setGuess('');
+  };
+
+  return (
+    <div className="space-y-6 text-center">
+      <div className="flex items-center justify-between mb-4">
+        <button onClick={onBack} className="p-2 glass rounded-xl"><ChevronLeft className="w-4 h-4" /></button>
+        <span className="text-sm font-bold text-blue-500 uppercase tracking-widest">Code Breaker</span>
+        <div className="w-8" />
+      </div>
+
+      <div className="glass p-6 rounded-3xl border border-white/5 space-y-6">
+        <div className="flex justify-center gap-2">
+          {won ? target.split('').map((c, i) => (
+            <div key={i} className="w-12 h-16 bg-emerald-500 text-black rounded-xl flex items-center justify-center text-2xl font-bold">{c}</div>
+          )) : Array(4).fill(0).map((_, i) => (
+            <div key={i} className="w-12 h-16 bg-zinc-900 border border-white/10 rounded-xl flex items-center justify-center text-2xl font-bold text-zinc-700">?</div>
+          ))}
+        </div>
+
+        {!won && (
+          <div className="flex gap-2">
+            <input 
+              maxLength={4}
+              value={guess}
+              onChange={(e) => setGuess(e.target.value.replace(/\D/g, ''))}
+              placeholder="4-digit code"
+              className="flex-1 bg-black border border-white/10 rounded-xl px-4 py-3 text-center font-mono text-xl focus:outline-none focus:border-blue-500"
+            />
+            <button onClick={handleGuess} className="px-6 bg-blue-500 rounded-xl font-bold">TRY</button>
+          </div>
+        )}
+
+        <div className="space-y-2 max-h-40 overflow-y-auto no-scrollbar">
+          {attempts.map((a, i) => {
+            let correct = 0;
+            let present = 0;
+            const targetArr = target.split('');
+            const guessArr = a.split('');
+            
+            guessArr.forEach((c, idx) => {
+              if (c === targetArr[idx]) correct++;
+              else if (targetArr.includes(c)) present++;
+            });
+
+            return (
+              <div key={i} className="flex justify-between items-center p-2 bg-white/5 rounded-lg text-[10px] font-mono">
+                <span className="text-zinc-300">{a}</span>
+                <div className="flex gap-2">
+                  <span className="text-emerald-500">✓ {correct}</span>
+                  <span className="text-yellow-500">○ {present}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default Tools;

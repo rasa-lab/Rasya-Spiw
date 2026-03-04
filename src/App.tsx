@@ -15,6 +15,7 @@ import Special from './pages/Special';
 import Others from './pages/Others';
 import Settings from './pages/Settings';
 import { Login } from './pages/Login';
+import { AdminPanel } from './pages/AdminPanel';
 
 const AppContent = () => {
   const { user } = useAuth();
@@ -116,6 +117,7 @@ const AppContent = () => {
           <Route path="/special" element={<Special />} />
           <Route path="/others" element={<Others />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/admin" element={<AdminPanel />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
