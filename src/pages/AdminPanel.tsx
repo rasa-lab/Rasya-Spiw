@@ -37,7 +37,7 @@ export const AdminPanel: React.FC = () => {
     setUsers(savedUsers);
     
     // Load cyber logs
-    const savedLogs = JSON.parse(localStorage.getItem('nano_cyber_logs') || []);
+    const savedLogs = JSON.parse(localStorage.getItem('nano_cyber_logs') || '[]');
     setLogs(savedLogs);
   }, []);
 

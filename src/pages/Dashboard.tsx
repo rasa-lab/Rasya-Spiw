@@ -28,6 +28,8 @@ import { useAuth } from '../context/AuthContext';
 const Dashboard: React.FC = memo(() => {
   const { user } = useAuth();
   const [testing, setTesting] = useState(false);
+  const [showMatrix, setShowMatrix] = useState(false);
+  const [optimizing, setOptimizing] = useState(false);
   const [notifications, setNotifications] = useState([
     { id: 1, type: 'security', msg: 'X Zero-Antivirus: System Secure', time: 'Just now' },
     { id: 2, type: 'info', msg: 'New version v2.5.0 available', time: '2h ago' },
@@ -49,6 +51,12 @@ const Dashboard: React.FC = memo(() => {
         </div>
         <div className="flex gap-2">
           <button 
+            onClick={() => setShowMatrix(!showMatrix)}
+            className={`p-3 rounded-2xl glass border border-white/5 ${showMatrix ? 'text-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]' : 'text-zinc-500'}`}
+          >
+            <Terminal className="w-4 h-4" />
+          </button>
+          <button 
             onClick={testAll}
             className={`p-3 rounded-2xl glass border border-white/5 ${testing ? 'animate-spin' : ''}`}
           >
@@ -56,6 +64,8 @@ const Dashboard: React.FC = memo(() => {
           </button>
         </div>
       </div>
+
+      {showMatrix && <MatrixBackground />}
 
       {/* Owner Profile Section */}
       <section className="glass p-6 rounded-[2.5rem] border border-emerald-500/20 bg-emerald-500/[0.02] relative overflow-hidden">
@@ -133,7 +143,40 @@ const Dashboard: React.FC = memo(() => {
           </div>
           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
         </div>
+        <button 
+          onClick={() => {
+            setOptimizing(true);
+            setTimeout(() => setOptimizing(false), 3000);
+          }}
+          disabled={optimizing}
+          className="w-full py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all disabled:opacity-50"
+        >
+          {optimizing ? 'Optimizing System...' : 'Deep System Clean'}
+        </button>
       </section>
+
+      <AnimatePresence>
+        {optimizing && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[2000] bg-black/90 flex items-center justify-center p-10"
+          >
+            <div className="text-center space-y-6">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                className="w-20 h-20 border-4 border-t-red-500 border-red-500/20 rounded-full mx-auto"
+              />
+              <div className="space-y-2">
+                <h3 className="text-xl font-bold text-white">X ZERO OPTIMIZATION</h3>
+                <p className="text-xs text-red-500 font-mono animate-pulse">CLEANING SYSTEM CACHE & LOGS...</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Dev Check / Hardware Specs */}
       <section className="space-y-3">
@@ -291,6 +334,30 @@ const SpeedTestSection = memo(() => {
         {testing ? 'Scanning Network...' : 'Run New Test'}
       </button>
     </section>
+  );
+});
+
+const MatrixBackground = memo(() => {
+  return (
+    <div className="fixed inset-0 z-[-1] pointer-events-none opacity-20 overflow-hidden">
+      {Array.from({ length: 30 }).map((_, i) => (
+        <motion.div
+          key={i}
+          initial={{ y: -100 }}
+          animate={{ y: 1000 }}
+          transition={{ 
+            duration: Math.random() * 5 + 2, 
+            repeat: Infinity, 
+            ease: "linear",
+            delay: Math.random() * 5
+          }}
+          className="absolute text-emerald-500 font-mono text-[8px] whitespace-pre"
+          style={{ left: `${i * 3.3}%` }}
+        >
+          {Array.from({ length: 20 }).map(() => String.fromCharCode(Math.floor(Math.random() * 94) + 33)).join('\n')}
+        </motion.div>
+      ))}
+    </div>
   );
 });
 

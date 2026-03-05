@@ -173,20 +173,54 @@ export const Login: React.FC = () => {
         {showWelcome && (
           <motion.div
             key="welcome-msg"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center space-y-6"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center space-y-8"
           >
-            <motion.div
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="w-24 h-24 bg-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-[0_0_30px_rgba(16,185,129,0.5)]"
-            >
-              <Shield className="w-12 h-12 text-black" />
-            </motion.div>
-            <div className="space-y-2">
-              <h2 className="text-4xl font-bold text-white">Welcome, {fullName}</h2>
-              <p className="text-emerald-500 font-mono text-sm tracking-widest uppercase">System Online | Access Granted</p>
+            <div className="relative inline-block">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                className="w-32 h-32 border-2 border-dashed border-emerald-500/30 rounded-full"
+              />
+              <motion.div
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="absolute inset-0 flex items-center justify-center"
+              >
+                <div className="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(16,185,129,0.5)]">
+                  <Shield className="w-10 h-10 text-black" />
+                </div>
+              </motion.div>
+            </div>
+
+            <div className="space-y-4">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: "100%" }}
+                transition={{ duration: 1 }}
+                className="h-px bg-gradient-to-r from-transparent via-emerald-500 to-transparent"
+              />
+              <div className="space-y-1">
+                <h2 className="text-5xl font-black text-white tracking-tighter italic">SYSTEM INITIALIZED</h2>
+                <p className="text-emerald-500 font-mono text-sm tracking-[0.3em] uppercase">Welcome to Nano Suite Pro</p>
+              </div>
+              <div className="flex flex-col items-center gap-2 font-mono text-[10px] text-zinc-500 uppercase tracking-widest">
+                <div className="flex gap-4">
+                  <span>User: <span className="text-white">{fullName}</span></span>
+                  <span>Status: <span className="text-emerald-500">Authorized</span></span>
+                </div>
+                <div className="flex gap-4">
+                  <span>Level: <span className="text-blue-400">Owner/Admin</span></span>
+                  <span>Region: <span className="text-purple-400">Tegal, ID</span></span>
+                </div>
+              </div>
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: "100%" }}
+                transition={{ duration: 1, delay: 0.5 }}
+                className="h-px bg-gradient-to-r from-transparent via-emerald-500 to-transparent"
+              />
             </div>
           </motion.div>
         )}

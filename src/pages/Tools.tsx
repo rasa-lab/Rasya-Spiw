@@ -68,13 +68,16 @@ import {
   Hash,
   Layout,
   Chrome,
-  Wifi
+  Wifi,
+  MessageSquare,
+  Send
 } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 import axios from 'axios';
 import { generateAIContent } from '../services/aiService';
+import { useAuth } from '../context/AuthContext';
 
-type Tool = 'none' | 'calculator' | 'notes' | 'math' | 'finance' | 'celengan' | 'games' | 'password' | 'qr' | 'converter' | 'stopwatch' | 'worldclock' | 'currency' | 'translator' | 'recipe' | 'bmi' | 'mood' | 'encryptor' | 'pomodoro' | 'weather' | 'dictionary' | 'colorpicker' | 'lorem' | 'markdown' | 'json' | 'habit' | 'metronome' | 'drawing' | 'typing' | 'morse' | 'base64' | 'url' | 'case' | 'subdomain' | 'whois' | 'ssl' | 'admin' | 'metadata' | 'resume' | 'expense' | 'passmanager' | 'pdf' | 'compressor' | 'animals' | 'colors' | 'piano' | 'spelling' | 'kidsquiz' | 'coloring' | 'story' | 'kidsmath' | 'kidsmemory' | 'alphabet' | 'browser' | 'trending' | 'wifi' | 'antivirus' | 'devcheck' | 'anime' | 'tv';
+type Tool = 'none' | 'calculator' | 'notes' | 'math' | 'finance' | 'celengan' | 'games' | 'password' | 'qr' | 'converter' | 'stopwatch' | 'worldclock' | 'currency' | 'translator' | 'recipe' | 'bmi' | 'mood' | 'encryptor' | 'pomodoro' | 'weather' | 'dictionary' | 'colorpicker' | 'lorem' | 'markdown' | 'json' | 'habit' | 'metronome' | 'drawing' | 'typing' | 'morse' | 'base64' | 'url' | 'case' | 'subdomain' | 'whois' | 'ssl' | 'admin' | 'metadata' | 'resume' | 'expense' | 'passmanager' | 'pdf' | 'compressor' | 'animals' | 'colors' | 'piano' | 'spelling' | 'kidsquiz' | 'coloring' | 'story' | 'kidsmath' | 'kidsmemory' | 'alphabet' | 'browser' | 'trending' | 'wifi' | 'antivirus' | 'devcheck' | 'anime' | 'tv' | 'hdvideo' | 'ipmask' | 'cyberchat' | 'livetv';
 
 const ToolButton = memo(({ tool, onClick }: { tool: any, onClick: () => void }) => (
   <motion.button
@@ -106,6 +109,8 @@ const Tools: React.FC = () => {
     { id: 'tv', name: 'Live TV', icon: Tv, color: 'bg-sky-500/20 text-sky-400' },
     { id: 'hdvideo', name: 'HD Video Player', icon: Play, color: 'bg-emerald-500/20 text-emerald-400' },
     { id: 'ipmask', name: 'IP Masking', icon: Shield, color: 'bg-purple-500/20 text-purple-400' },
+    { id: 'cyberchat', name: 'Cyber Chat', icon: MessageSquare, color: 'bg-emerald-500/20 text-emerald-400' },
+    { id: 'livetv', name: 'Live TV Pro', icon: Tv, color: 'bg-orange-500/20 text-orange-400' },
     { id: 'browser', name: 'Browser', icon: Chrome, color: 'bg-blue-500/20 text-blue-400' },
     { id: 'trending', name: 'Trending', icon: Zap, color: 'bg-yellow-500/20 text-yellow-400' },
     { id: 'subdomain', name: 'Sub Scanner', icon: Globe, color: 'bg-indigo-500/20 text-indigo-400' },
@@ -165,11 +170,11 @@ const Tools: React.FC = () => {
   const categories = React.useMemo(() => [
     {
       name: 'CYBER SECURITY',
-      tools: ['antivirus', 'devcheck', 'wifi', 'admin', 'ssl', 'whois', 'subdomain', 'ipmask']
+      tools: ['antivirus', 'devcheck', 'wifi', 'admin', 'ssl', 'whois', 'subdomain', 'ipmask', 'cyberchat']
     },
     {
       name: 'MEDIA & ENTERTAINMENT',
-      tools: ['anime', 'tv', 'browser', 'trending', 'hdvideo']
+      tools: ['anime', 'tv', 'browser', 'trending', 'hdvideo', 'livetv']
     },
     {
       name: 'SECURITY & PRIVACY',
@@ -296,6 +301,8 @@ const Tools: React.FC = () => {
             {activeTool === 'wifi' && <WiFiTool />}
             {activeTool === 'hdvideo' && <HDVideoPlayerTool />}
             {activeTool === 'ipmask' && <IPMaskingTool />}
+            {activeTool === 'cyberchat' && <CyberChat />}
+            {activeTool === 'livetv' && <LiveTV />}
             {activeTool === 'trending' && <TrendingTool />}
             {activeTool === 'subdomain' && <SubdomainTool />}
             {activeTool === 'whois' && <WhoisTool />}
@@ -3162,5 +3169,110 @@ const CodeBreakerGame = ({ onBack }: { onBack: () => void }) => {
     </div>
   );
 };
+
+const CyberChat = memo(() => {
+  const { user } = useAuth();
+  const [messages, setMessages] = useState([
+    { id: 1, user: 'System', text: 'Welcome to the encrypted channel.', time: '12:00' },
+    { id: 2, user: 'Admin', text: 'Protocol Nex is active.', time: '12:05' },
+  ]);
+  const [input, setInput] = useState('');
+
+  const send = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input) return;
+    const newMsg = {
+      id: Date.now(),
+      user: user?.fullName || 'Anonymous',
+      text: input,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    setMessages([...messages, newMsg]);
+    setInput('');
+  };
+
+  return (
+    <div className="flex flex-col h-[500px] glass rounded-3xl overflow-hidden border border-white/5">
+      <div className="p-4 border-b border-white/5 bg-emerald-500/5 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+          <span className="text-xs font-bold uppercase tracking-widest">Global Secure Chat</span>
+        </div>
+        <span className="text-[8px] text-zinc-500 font-mono">USERS ONLINE: {Math.floor(Math.random() * 50) + 10}</span>
+      </div>
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
+        {messages.map(m => (
+          <div key={m.id} className={`flex flex-col ${m.user === user?.fullName ? 'items-end' : 'items-start'}`}>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[8px] font-bold text-zinc-500 uppercase">{m.user}</span>
+              <span className="text-[7px] text-zinc-700 font-mono">{m.time}</span>
+            </div>
+            <div className={`px-4 py-2 rounded-2xl text-xs max-w-[80%] ${m.user === user?.fullName ? 'bg-emerald-500 text-black font-bold' : 'bg-zinc-900 text-zinc-300 border border-white/5'}`}>
+              {m.text}
+            </div>
+          </div>
+        ))}
+      </div>
+      <form onSubmit={send} className="p-4 bg-black/40 border-t border-white/5 flex gap-2">
+        <input 
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Type encrypted message..."
+          className="flex-1 bg-zinc-950 border border-white/10 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-emerald-500/50"
+        />
+        <button type="submit" className="p-2 bg-emerald-500 text-black rounded-xl">
+          <Send className="w-4 h-4" />
+        </button>
+      </form>
+    </div>
+  );
+});
+
+const LiveTV = memo(() => {
+  const [selectedChannel, setSelectedChannel] = useState<any>(null);
+  const channels = [
+    { id: 1, name: 'CNN News Live', url: 'https://www.youtube.com/embed/CKq7v53tE8g', icon: Globe },
+    { id: 2, name: 'BBC World News', url: 'https://www.youtube.com/embed/4W_X-VDKSWc', icon: Globe },
+    { id: 3, name: 'Sky News Live', url: 'https://www.youtube.com/embed/jVoDfYoY-7g', icon: Globe },
+    { id: 4, name: 'Al Jazeera English', url: 'https://www.youtube.com/embed/DOOrIxw5xOw', icon: Globe },
+    { id: 5, name: 'ABC News Live', url: 'https://www.youtube.com/embed/zPH5KtjJFaQ', icon: Globe },
+    { id: 6, name: 'Cyber News 24/7', url: 'https://www.youtube.com/embed/live_stream?channel=UC4R8DWoMoI7CAwX8_LjQHig', icon: Shield },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className="p-6 bg-orange-500/10 rounded-3xl border border-orange-500/20 text-center space-y-2">
+        <Tv className="w-12 h-12 text-orange-400 mx-auto" />
+        <h3 className="font-bold">Live TV Pro</h3>
+        <p className="text-xs text-zinc-500">Global news and entertainment streams.</p>
+      </div>
+      
+      {selectedChannel ? (
+        <div className="space-y-4">
+          <button onClick={() => setSelectedChannel(null)} className="text-[10px] font-bold text-zinc-500 flex items-center gap-1">
+            <ChevronLeft className="w-3 h-3" /> BACK TO CHANNELS
+          </button>
+          <div className="aspect-video bg-black rounded-2xl overflow-hidden border border-white/5">
+            <iframe src={selectedChannel.url} className="w-full h-full" allowFullScreen />
+          </div>
+          <div className="text-sm font-bold text-white">{selectedChannel.name}</div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-3">
+          {channels.map(c => (
+            <button 
+              key={c.id} 
+              onClick={() => setSelectedChannel(c)}
+              className="glass p-4 rounded-2xl border border-white/5 flex flex-col items-center gap-3 hover:border-orange-500/50 transition-colors"
+            >
+              <c.icon className="w-8 h-8 text-orange-500/50" />
+              <div className="text-[10px] font-bold text-zinc-300 uppercase">{c.name}</div>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+});
 
 export default Tools;
