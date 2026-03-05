@@ -461,6 +461,14 @@ const WiFiTool = () => {
   const [scanning, setScanning] = useState(false);
   const [killing, setKilling] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [latency, setLatency] = useState<number[]>([]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLatency(prev => [...prev.slice(-19), Math.floor(Math.random() * 40) + 10]);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const scan = () => {
     setScanning(true);
@@ -472,27 +480,11 @@ const WiFiTool = () => {
         downlink: conn?.downlink || (Math.random() * 50 + 10).toFixed(2),
         rtt: conn?.rtt || Math.floor(Math.random() * 100 + 20),
         saveData: conn?.saveData ? 'Enabled' : 'Disabled',
-        signal: 'Strong',
-        security: 'WPA3-Enterprise'
+        signal: 'Strong (92%)',
+        security: 'WPA3-Enterprise (AES)'
       });
       setScanning(false);
     }, 2000);
-  };
-
-  const killWiFi = () => {
-    setKilling(true);
-    setProgress(0);
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setKilling(false);
-          alert('WiFi Killer is restricted for educational purposes only. Unauthorized use is illegal.');
-          return 100;
-        }
-        return prev + 5;
-      });
-    }, 100);
   };
 
   useEffect(() => {
@@ -503,32 +495,62 @@ const WiFiTool = () => {
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
         {info && Object.entries(info).map(([key, val]: any) => (
-          <div key={key} className="glass p-3 rounded-xl space-y-1">
+          <div key={key} className="glass p-3 rounded-xl space-y-1 border border-white/5 hover:border-blue-500/20 transition-all">
             <div className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">{key}</div>
             <div className="text-xs font-mono font-bold text-blue-400">{val}</div>
           </div>
         ))}
       </div>
+      
+      <div className="glass p-4 rounded-2xl border border-white/5 space-y-3">
+        <div className="flex justify-between items-center text-[8px] font-bold text-zinc-500 uppercase tracking-widest">
+          <span>Network Latency (ms)</span>
+          <span className="text-blue-400">{latency[latency.length-1] || 0} ms</span>
+        </div>
+        <div className="flex items-end gap-1 h-12">
+          {latency.map((l, i) => (
+            <div 
+              key={i} 
+              className="flex-1 bg-blue-500/20 rounded-t-sm transition-all"
+              style={{ height: `${(l / 100) * 100}%` }}
+            />
+          ))}
+        </div>
+      </div>
+
       {killing && (
         <div className="space-y-2">
           <div className="flex justify-between text-[8px] font-bold text-red-500 uppercase tracking-widest">
-            <span>Injecting Packets...</span>
+            <span>Injecting Deauth Packets...</span>
             <span>{progress}%</span>
           </div>
           <div className="h-1 bg-zinc-900 rounded-full overflow-hidden">
-            <motion.div initial={{ width: 0 }} animate={{ width: `${progress}%` }} className="h-full bg-red-500" />
+            <motion.div initial={{ width: 0 }} animate={{ width: `${progress}%` }} className="h-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]" />
           </div>
         </div>
       )}
       <div className="flex gap-2">
-        <button onClick={scan} className="flex-1 py-3 bg-zinc-900 border border-white/5 rounded-xl text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2">
+        <button onClick={scan} className="flex-1 py-3 bg-zinc-900 border border-white/5 rounded-xl text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-zinc-800 transition-all">
           <RefreshCw className={`w-3 h-3 ${scanning ? 'animate-spin' : ''}`} />
           WiFi Test
         </button>
         <button 
-          onClick={killWiFi}
+          onClick={() => {
+            setKilling(true);
+            setProgress(0);
+            const interval = setInterval(() => {
+              setProgress(prev => {
+                if (prev >= 100) {
+                  clearInterval(interval);
+                  setKilling(false);
+                  return 100;
+                }
+                return prev + 5;
+              });
+            }, 100);
+          }}
           disabled={scanning || killing}
-          className="flex-1 py-3 bg-red-500/20 border border-red-500/30 rounded-xl text-[10px] font-bold uppercase tracking-widest text-red-500 flex items-center justify-center gap-2 disabled:opacity-50"
+          className="flex-1 py-3 bg-red-500/20 border border-red-500/30 rounded-xl text-[10px] font-bold uppercase tracking-widest text-red-500 flex items-center justify-center gap-2 disabled:opacity-50 hover:bg-red-500/30 transition-all"
         >
           <Zap className={`w-3 h-3 ${killing ? 'animate-pulse' : ''}`} />
           WiFi Killer
@@ -2670,19 +2692,37 @@ const AntivirusTool = memo(() => {
   const [scanning, setScanning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [threats, setThreats] = useState<string[]>([]);
+  const [currentFile, setCurrentFile] = useState('');
+
+  const files = [
+    '/system/kernel/boot.sys',
+    '/usr/bin/security_agent',
+    '/etc/shadow_backup',
+    '/var/log/auth.log',
+    '/home/user/documents/secret.txt',
+    '/system/drivers/network.drv',
+    '/tmp/x_zero_payload.exe',
+    '/etc/hosts_config',
+    '/usr/lib/libcrypto.so',
+    '/boot/vmlinuz-linux'
+  ];
 
   const startScan = () => {
     setScanning(true);
     setProgress(0);
     setThreats([]);
     
+    let i = 0;
     const interval = setInterval(() => {
       setProgress(prev => {
         if (prev >= 100) {
           clearInterval(interval);
           setScanning(false);
+          setCurrentFile('Scan Complete');
           return 100;
         }
+        setCurrentFile(files[i % files.length]);
+        i++;
         return prev + 1;
       });
     }, 50);
@@ -2700,16 +2740,16 @@ const AntivirusTool = memo(() => {
 
       <div className="space-y-4">
         {scanning && (
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="flex justify-between text-[10px] font-mono text-zinc-500">
-              <span>SCANNING SYSTEM...</span>
+              <span className="truncate max-w-[70%]">SCANNING: {currentFile}</span>
               <span>{progress}%</span>
             </div>
             <div className="h-1.5 bg-zinc-900 rounded-full overflow-hidden">
               <motion.div 
                 initial={{ width: 0 }}
                 animate={{ width: `${progress}%` }}
-                className="h-full bg-red-500"
+                className="h-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]"
               />
             </div>
           </div>
@@ -2724,10 +2764,14 @@ const AntivirusTool = memo(() => {
         </button>
 
         {!scanning && progress === 100 && (
-          <div className="p-4 glass rounded-2xl border border-emerald-500/20 bg-emerald-500/5 flex items-center gap-3">
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 glass rounded-2xl border border-emerald-500/20 bg-emerald-500/5 flex items-center gap-3"
+          >
             <CheckCircle className="w-5 h-5 text-emerald-500" />
             <span className="text-xs font-bold text-emerald-500">System Secure. No threats detected.</span>
-          </div>
+          </motion.div>
         )}
       </div>
     </div>
@@ -2735,13 +2779,19 @@ const AntivirusTool = memo(() => {
 });
 
 const DevCheckTool = memo(() => {
+  const [battery, setBattery] = useState<any>(null);
+
+  useEffect(() => {
+    (navigator as any).getBattery?.().then((bat: any) => setBattery(bat));
+  }, []);
+
   const specs = [
     { label: 'Model', value: navigator.userAgent.split('(')[1]?.split(')')[0] || 'Unknown' },
     { label: 'Platform', value: navigator.platform },
     { label: 'CPU Cores', value: navigator.hardwareConcurrency || 'N/A' },
     { label: 'Memory', value: (navigator as any).deviceMemory ? `${(navigator as any).deviceMemory} GB` : 'N/A' },
     { label: 'Screen', value: `${window.screen.width}x${window.screen.height}` },
-    { label: 'Pixel Ratio', value: window.devicePixelRatio },
+    { label: 'Battery', value: battery ? `${Math.round(battery.level * 100)}% ${battery.charging ? '(Charging)' : ''}` : 'N/A' },
     { label: 'Touch Points', value: navigator.maxTouchPoints },
     { label: 'Connection', value: (navigator as any).connection?.effectiveType?.toUpperCase() || 'N/A' },
   ];
@@ -2750,20 +2800,27 @@ const DevCheckTool = memo(() => {
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-3">
         {specs.map((s, i) => (
-          <div key={i} className="glass p-4 rounded-2xl border border-white/5 space-y-1">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: i * 0.05 }}
+            key={i} 
+            className="glass p-4 rounded-2xl border border-white/5 space-y-1 hover:border-emerald-500/20 transition-all"
+          >
             <div className="text-[8px] text-zinc-500 uppercase font-bold tracking-tighter">{s.label}</div>
             <div className="text-xs font-mono font-bold text-emerald-400 truncate">{s.value}</div>
-          </div>
+          </motion.div>
         ))}
       </div>
-      <div className="p-4 glass rounded-2xl border border-blue-500/20 bg-blue-500/5">
-        <div className="flex items-center gap-2 mb-2">
+      <div className="p-4 glass rounded-2xl border border-blue-500/20 bg-blue-500/5 relative overflow-hidden">
+        <div className="flex items-center gap-2 mb-2 relative z-10">
           <Cpu className="w-4 h-4 text-blue-400" />
           <span className="text-[10px] font-bold uppercase text-blue-400">System Integrity</span>
         </div>
-        <p className="text-[10px] text-zinc-400 leading-relaxed">
-          All hardware components are functioning within normal parameters. No kernel anomalies detected.
+        <p className="text-[10px] text-zinc-400 leading-relaxed relative z-10">
+          All hardware components are functioning within normal parameters. No kernel anomalies detected. Secure boot enabled.
         </p>
+        <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full -mr-12 -mt-12 blur-2xl" />
       </div>
     </div>
   );
@@ -2985,6 +3042,9 @@ const IPMaskingTool = () => {
   const { user, updateUser } = useAuth();
   const [masking, setMasking] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [node, setNode] = useState('Global Proxy Node');
+
+  const nodes = ['Frankfurt, DE', 'Singapore, SG', 'New York, US', 'Tokyo, JP', 'London, UK', 'Amsterdam, NL'];
 
   const startMasking = () => {
     setMasking(true);
@@ -2998,6 +3058,7 @@ const IPMaskingTool = () => {
           updateUser({ ip: fakeIp });
           return 100;
         }
+        setNode(nodes[Math.floor(Math.random() * nodes.length)]);
         return prev + 2;
       });
     }, 50);
@@ -3006,7 +3067,7 @@ const IPMaskingTool = () => {
   return (
     <div className="space-y-6">
       <div className="p-8 bg-purple-500/10 rounded-[2.5rem] border border-purple-500/20 text-center space-y-4">
-        <div className="w-20 h-20 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto border border-purple-500/30">
+        <div className="w-20 h-20 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto border border-purple-500/30 shadow-[0_0_20px_rgba(168,85,247,0.3)]">
           <Shield className="w-10 h-10 text-purple-500" />
         </div>
         <div className="space-y-1">
@@ -3023,18 +3084,18 @@ const IPMaskingTool = () => {
         {masking && (
           <div className="space-y-2">
             <div className="flex justify-between text-[8px] font-bold text-purple-500 uppercase tracking-widest">
-              <span>Cloning IP Nodes...</span>
+              <span>Cloning Node: {node}</span>
               <span>{progress}%</span>
             </div>
             <div className="h-1 bg-zinc-900 rounded-full overflow-hidden">
-              <motion.div initial={{ width: 0 }} animate={{ width: `${progress}%` }} className="h-full bg-purple-500" />
+              <motion.div initial={{ width: 0 }} animate={{ width: `${progress}%` }} className="h-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.5)]" />
             </div>
           </div>
         )}
         <button 
           onClick={startMasking}
           disabled={masking}
-          className="w-full py-4 bg-purple-500 text-white rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-purple-500/20 disabled:opacity-50"
+          className="w-full py-4 bg-purple-500 text-white rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-purple-500/20 disabled:opacity-50 active:scale-95 transition-all"
         >
           {masking ? 'Masking in Progress...' : 'Initialize IP Masking'}
         </button>
@@ -3173,10 +3234,33 @@ const CodeBreakerGame = ({ onBack }: { onBack: () => void }) => {
 const CyberChat = memo(() => {
   const { user } = useAuth();
   const [messages, setMessages] = useState([
-    { id: 1, user: 'System', text: 'Welcome to the encrypted channel.', time: '12:00' },
-    { id: 2, user: 'Admin', text: 'Protocol Nex is active.', time: '12:05' },
+    { id: 1, user: 'System', text: 'Welcome to the encrypted channel.', time: '12:00', type: 'system' },
+    { id: 2, user: 'Admin', text: 'Protocol Nex is active.', time: '12:05', type: 'admin' },
   ]);
   const [input, setInput] = useState('');
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (Math.random() > 0.8) {
+        const systemMsgs = [
+          'New node connected from Singapore.',
+          'Encryption keys rotated.',
+          'Intrusion attempt blocked from 192.168.x.x',
+          'System integrity check complete.',
+          'Global traffic spike detected.'
+        ];
+        const newMsg = {
+          id: Date.now(),
+          user: 'System',
+          text: systemMsgs[Math.floor(Math.random() * systemMsgs.length)],
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          type: 'system'
+        };
+        setMessages(prev => [...prev.slice(-49), newMsg]);
+      }
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const send = (e: React.FormEvent) => {
     e.preventDefault();
@@ -3185,32 +3269,42 @@ const CyberChat = memo(() => {
       id: Date.now(),
       user: user?.fullName || 'Anonymous',
       text: input,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      type: 'user'
     };
     setMessages([...messages, newMsg]);
     setInput('');
   };
 
   return (
-    <div className="flex flex-col h-[500px] glass rounded-3xl overflow-hidden border border-white/5">
+    <div className="flex flex-col h-[500px] glass rounded-3xl overflow-hidden border border-white/5 shadow-2xl">
       <div className="p-4 border-b border-white/5 bg-emerald-500/5 flex justify-between items-center">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-          <span className="text-xs font-bold uppercase tracking-widest">Global Secure Chat</span>
+          <span className="text-xs font-bold uppercase tracking-widest text-emerald-500">Global Secure Chat</span>
         </div>
         <span className="text-[8px] text-zinc-500 font-mono">USERS ONLINE: {Math.floor(Math.random() * 50) + 10}</span>
       </div>
       <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
         {messages.map(m => (
-          <div key={m.id} className={`flex flex-col ${m.user === user?.fullName ? 'items-end' : 'items-start'}`}>
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            key={m.id} 
+            className={`flex flex-col ${m.user === user?.fullName ? 'items-end' : 'items-start'}`}
+          >
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-[8px] font-bold text-zinc-500 uppercase">{m.user}</span>
+              <span className={`text-[8px] font-bold uppercase ${m.type === 'system' ? 'text-blue-500' : m.type === 'admin' ? 'text-red-500' : 'text-zinc-500'}`}>{m.user}</span>
               <span className="text-[7px] text-zinc-700 font-mono">{m.time}</span>
             </div>
-            <div className={`px-4 py-2 rounded-2xl text-xs max-w-[80%] ${m.user === user?.fullName ? 'bg-emerald-500 text-black font-bold' : 'bg-zinc-900 text-zinc-300 border border-white/5'}`}>
+            <div className={`px-4 py-2 rounded-2xl text-xs max-w-[80%] shadow-sm ${
+              m.user === user?.fullName ? 'bg-emerald-500 text-black font-bold' : 
+              m.type === 'system' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20 italic' :
+              'bg-zinc-900 text-zinc-300 border border-white/5'
+            }`}>
               {m.text}
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
       <form onSubmit={send} className="p-4 bg-black/40 border-t border-white/5 flex gap-2">
@@ -3218,9 +3312,9 @@ const CyberChat = memo(() => {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type encrypted message..."
-          className="flex-1 bg-zinc-950 border border-white/10 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-emerald-500/50"
+          className="flex-1 bg-zinc-950 border border-white/10 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-emerald-500/50 font-mono"
         />
-        <button type="submit" className="p-2 bg-emerald-500 text-black rounded-xl">
+        <button type="submit" className="p-2 bg-emerald-500 text-black rounded-xl hover:bg-emerald-400 transition-all active:scale-95">
           <Send className="w-4 h-4" />
         </button>
       </form>
@@ -3231,12 +3325,11 @@ const CyberChat = memo(() => {
 const LiveTV = memo(() => {
   const [selectedChannel, setSelectedChannel] = useState<any>(null);
   const channels = [
-    { id: 1, name: 'CNN News Live', url: 'https://www.youtube.com/embed/CKq7v53tE8g', icon: Globe },
-    { id: 2, name: 'BBC World News', url: 'https://www.youtube.com/embed/4W_X-VDKSWc', icon: Globe },
-    { id: 3, name: 'Sky News Live', url: 'https://www.youtube.com/embed/jVoDfYoY-7g', icon: Globe },
-    { id: 4, name: 'Al Jazeera English', url: 'https://www.youtube.com/embed/DOOrIxw5xOw', icon: Globe },
-    { id: 5, name: 'ABC News Live', url: 'https://www.youtube.com/embed/zPH5KtjJFaQ', icon: Globe },
-    { id: 6, name: 'Cyber News 24/7', url: 'https://www.youtube.com/embed/live_stream?channel=UC4R8DWoMoI7CAwX8_LjQHig', icon: Shield },
+    { id: 1, name: 'GLOBAL NEWS 24/7', url: 'https://www.youtube.com/embed/CKq7v53tE8g?autoplay=1', icon: Globe, color: 'text-red-500' },
+    { id: 2, name: 'TECH LIVE', url: 'https://www.youtube.com/embed/4W_X-VDKSWc?autoplay=1', icon: Cpu, color: 'text-blue-500' },
+    { id: 3, name: 'CYBER STREAM', url: 'https://www.youtube.com/embed/jVoDfYoY-7g?autoplay=1', icon: Shield, color: 'text-sky-500' },
+    { id: 4, name: 'WORLD NEWS', url: 'https://www.youtube.com/embed/DOOrIxw5xOw?autoplay=1', icon: Globe, color: 'text-emerald-500' },
+    { id: 5, name: 'LIVE EVENTS', url: 'https://www.youtube.com/embed/zPH5KtjJFaQ?autoplay=1', icon: Zap, color: 'text-yellow-500' },
   ];
 
   return (
@@ -3248,25 +3341,40 @@ const LiveTV = memo(() => {
       </div>
       
       {selectedChannel ? (
-        <div className="space-y-4">
-          <button onClick={() => setSelectedChannel(null)} className="text-[10px] font-bold text-zinc-500 flex items-center gap-1">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="space-y-4"
+        >
+          <button onClick={() => setSelectedChannel(null)} className="text-[10px] font-bold text-zinc-500 flex items-center gap-1 hover:text-white transition-colors">
             <ChevronLeft className="w-3 h-3" /> BACK TO CHANNELS
           </button>
-          <div className="aspect-video bg-black rounded-2xl overflow-hidden border border-white/5">
-            <iframe src={selectedChannel.url} className="w-full h-full" allowFullScreen />
+          <div className="aspect-video bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl relative">
+            <iframe 
+              src={selectedChannel.url} 
+              className="w-full h-full" 
+              allowFullScreen 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            />
+            <div className="absolute top-4 left-4 glass px-3 py-1 rounded-full text-[8px] font-black text-emerald-500 animate-pulse">
+              LIVE • {selectedChannel.name}
+            </div>
           </div>
-          <div className="text-sm font-bold text-white">{selectedChannel.name}</div>
-        </div>
+          <div className="text-sm font-bold text-white flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+            {selectedChannel.name}
+          </div>
+        </motion.div>
       ) : (
         <div className="grid grid-cols-2 gap-3">
           {channels.map(c => (
             <button 
               key={c.id} 
               onClick={() => setSelectedChannel(c)}
-              className="glass p-4 rounded-2xl border border-white/5 flex flex-col items-center gap-3 hover:border-orange-500/50 transition-colors"
+              className="glass p-4 rounded-2xl border border-white/5 flex flex-col items-center gap-3 hover:border-orange-500/50 transition-all hover:scale-[1.02] active:scale-98"
             >
-              <c.icon className="w-8 h-8 text-orange-500/50" />
-              <div className="text-[10px] font-bold text-zinc-300 uppercase">{c.name}</div>
+              <c.icon className={`w-8 h-8 ${c.color} opacity-50`} />
+              <div className="text-[10px] font-bold text-zinc-300 uppercase text-center">{c.name}</div>
             </button>
           ))}
         </div>

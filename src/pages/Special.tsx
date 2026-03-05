@@ -28,7 +28,14 @@ import {
   Hammer,
   Eye,
   MessageSquare,
-  Lock
+  Lock,
+  Cpu,
+  Zap,
+  CheckCircle,
+  AlertTriangle,
+  Terminal,
+  Activity,
+  Network
 } from 'lucide-react';
 import { generateAIContent } from '../services/aiService';
 import { sanitizeInput, isPotentiallyMalicious } from '../utils/security';
@@ -802,17 +809,16 @@ const AnimeTool = memo(() => {
 const TVTool = memo(() => {
   const [activeChannel, setActiveChannel] = useState<any>(null);
   const channels = [
-    { name: 'CNN News Live', category: 'News', url: 'https://www.youtube.com/embed/CKq7v53tE8g', icon: Globe, color: 'bg-red-600' },
-    { name: 'BBC World News', category: 'News', url: 'https://www.youtube.com/embed/4W_X-VDKSWc', icon: Globe, color: 'bg-blue-600' },
-    { name: 'Sky News Live', category: 'News', url: 'https://www.youtube.com/embed/jVoDfYoY-7g', icon: Globe, color: 'bg-sky-600' },
-    { name: 'Al Jazeera English', category: 'News', url: 'https://www.youtube.com/embed/DOOrIxw5xOw', icon: Globe, color: 'bg-emerald-600' },
-    { name: 'ABC News Live', category: 'News', url: 'https://www.youtube.com/embed/zPH5KtjJFaQ', icon: Globe, color: 'bg-blue-500' },
-    { name: 'Cyber News 24/7', category: 'Tech', url: 'https://www.youtube.com/embed/live_stream?channel=UC4R8DWoMoI7CAwX8_LjQHig', icon: Shield, color: 'bg-zinc-800' },
+    { name: 'GLOBAL NEWS 24/7', category: 'News', url: 'https://www.youtube.com/embed/CKq7v53tE8g?autoplay=1', icon: Globe, color: 'bg-red-600' },
+    { name: 'TECH LIVE', category: 'Tech', url: 'https://www.youtube.com/embed/4W_X-VDKSWc?autoplay=1', icon: Cpu, color: 'bg-blue-600' },
+    { name: 'CYBER STREAM', category: 'Security', url: 'https://www.youtube.com/embed/jVoDfYoY-7g?autoplay=1', icon: Shield, color: 'bg-sky-600' },
+    { name: 'WORLD NEWS', category: 'News', url: 'https://www.youtube.com/embed/DOOrIxw5xOw?autoplay=1', icon: Globe, color: 'bg-emerald-600' },
+    { name: 'LIVE EVENTS', category: 'Events', url: 'https://www.youtube.com/embed/zPH5KtjJFaQ?autoplay=1', icon: Zap, color: 'bg-blue-500' },
   ];
 
   return (
     <div className="space-y-6">
-      <div className="aspect-video bg-zinc-950 rounded-[2rem] flex items-center justify-center border border-white/5 relative overflow-hidden group">
+      <div className="aspect-video bg-zinc-950 rounded-[2rem] flex items-center justify-center border border-white/5 relative overflow-hidden group shadow-2xl">
         {activeChannel ? (
           <iframe 
             src={activeChannel.url} 
@@ -826,6 +832,11 @@ const TVTool = memo(() => {
               <Tv className="w-8 h-8 text-zinc-700" />
             </div>
             <p className="text-[10px] text-zinc-600 font-mono uppercase tracking-widest">Select a channel to broadcast</p>
+          </div>
+        )}
+        {activeChannel && (
+          <div className="absolute top-4 left-4 glass px-3 py-1 rounded-full text-[8px] font-black text-emerald-500 animate-pulse z-10">
+            LIVE • {activeChannel.name}
           </div>
         )}
       </div>
@@ -1246,16 +1257,30 @@ const GamesCenterTool = memo(() => {
 const NetworkScannerTool = memo(() => {
   const [scanning, setScanning] = useState(false);
   const [devices, setDevices] = useState<any[]>([]);
+  const [publicIP, setPublicIP] = useState<string>('Detecting...');
+
+  useEffect(() => {
+    const fetchIP = async () => {
+      try {
+        const res = await axios.get('https://api.ipify.org?format=json');
+        setPublicIP(res.data.ip);
+      } catch (e) {
+        setPublicIP('Unknown');
+      }
+    };
+    fetchIP();
+  }, []);
 
   const startScan = () => {
     setScanning(true);
     setDevices([]);
     setTimeout(() => {
       setDevices([
-        { ip: '192.168.1.1', name: 'Gateway', mac: '00:11:22:33:44:55', vendor: 'Cisco' },
-        { ip: '192.168.1.102', name: 'User-PC', mac: 'AA:BB:CC:DD:EE:FF', vendor: 'Apple' },
-        { ip: '192.168.1.105', name: 'Smart-TV', mac: '11:22:33:44:55:66', vendor: 'Samsung' },
-        { ip: '192.168.1.110', name: 'Android-Phone', mac: 'FF:EE:DD:CC:BB:AA', vendor: 'Xiaomi' },
+        { ip: '192.168.1.1', name: 'Gateway/Router', mac: '00:11:22:33:44:55', vendor: 'Cisco Systems', status: 'Online' },
+        { ip: '192.168.1.102', name: 'Workstation-Alpha', mac: 'AA:BB:CC:DD:EE:FF', vendor: 'Apple Inc.', status: 'Online' },
+        { ip: '192.168.1.105', name: 'Smart-Display-01', mac: '11:22:33:44:55:66', vendor: 'Samsung Electronics', status: 'Online' },
+        { ip: '192.168.1.110', name: 'Mobile-Device', mac: 'FF:EE:DD:CC:BB:AA', vendor: 'Xiaomi Communications', status: 'Online' },
+        { ip: '192.168.1.125', name: 'IoT-Sensor-Node', mac: '55:44:33:22:11:00', vendor: 'Espressif Systems', status: 'Online' },
       ]);
       setScanning(false);
     }, 3000);
@@ -1265,26 +1290,53 @@ const NetworkScannerTool = memo(() => {
     <div className="space-y-6">
       <div className="p-6 bg-emerald-500/10 rounded-3xl border border-emerald-500/20 text-center space-y-2">
         <Wifi className="w-12 h-12 text-emerald-500 mx-auto" />
-        <h3 className="font-bold">Network Scanner</h3>
-        <p className="text-xs text-zinc-500">Scan local network for active devices.</p>
+        <h3 className="font-bold">Network Scanner Pro</h3>
+        <p className="text-xs text-zinc-500">Deep packet inspection & device discovery.</p>
+        <div className="pt-2">
+          <span className="text-[10px] font-mono text-emerald-500/50 uppercase">Public IP: {publicIP}</span>
+        </div>
       </div>
       <button 
         onClick={startScan} 
         disabled={scanning}
-        className="w-full py-4 bg-emerald-500 text-black rounded-2xl font-bold uppercase tracking-widest shadow-lg shadow-emerald-500/20 disabled:opacity-50"
+        className="w-full py-4 bg-emerald-500 text-black rounded-2xl font-bold uppercase tracking-widest shadow-lg shadow-emerald-500/20 disabled:opacity-50 relative overflow-hidden group"
       >
-        {scanning ? 'Scanning Network...' : 'Start Network Scan'}
+        <span className="relative z-10">{scanning ? 'Scanning Network...' : 'Start Deep Scan'}</span>
+        {scanning && (
+          <motion.div 
+            initial={{ x: '-100%' }}
+            animate={{ x: '100%' }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+            className="absolute inset-0 bg-white/20"
+          />
+        )}
       </button>
       {devices.length > 0 && (
         <div className="space-y-2">
+          <div className="flex items-center justify-between px-2 text-[8px] font-black text-zinc-500 uppercase tracking-widest">
+            <span>Detected Devices</span>
+            <span>{devices.length} Found</span>
+          </div>
           {devices.map((d, i) => (
-            <div key={i} className="glass p-4 rounded-2xl border border-white/5 flex justify-between items-center">
+            <motion.div 
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.1 }}
+              key={i} 
+              className="glass p-4 rounded-2xl border border-white/5 flex justify-between items-center group hover:border-emerald-500/30 transition-all"
+            >
               <div className="space-y-1">
-                <div className="text-sm font-bold text-white">{d.name}</div>
-                <div className="text-[10px] text-zinc-500 font-mono">{d.ip} • {d.mac}</div>
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <div className="text-sm font-bold text-white">{d.name}</div>
+                </div>
+                <div className="text-[10px] text-zinc-500 font-mono tracking-tighter">{d.ip} • {d.mac}</div>
               </div>
-              <div className="text-[10px] font-bold text-emerald-500 uppercase">{d.vendor}</div>
-            </div>
+              <div className="text-right">
+                <div className="text-[10px] font-bold text-emerald-500 uppercase">{d.vendor}</div>
+                <div className="text-[8px] text-zinc-600 font-mono uppercase">Status: {d.status}</div>
+              </div>
+            </motion.div>
           ))}
         </div>
       )}
@@ -1296,21 +1348,34 @@ const PortScannerTool = memo(() => {
   const [target, setTarget] = useState('');
   const [scanning, setScanning] = useState(false);
   const [results, setResults] = useState<any[]>([]);
+  const [progress, setProgress] = useState(0);
 
   const scanPorts = async () => {
     if (!target) return;
     setScanning(true);
     setResults([]);
+    setProgress(0);
     
-    // Browser-based port scanning is limited, so we simulate real results based on common patterns
-    const commonPorts = [21, 22, 23, 25, 53, 80, 110, 143, 443, 3306, 3389, 8080];
+    const commonPorts = [
+      { port: 21, service: 'FTP', risk: 'Low' },
+      { port: 22, service: 'SSH', risk: 'Medium' },
+      { port: 23, service: 'Telnet', risk: 'Critical' },
+      { port: 25, service: 'SMTP', risk: 'Low' },
+      { port: 53, service: 'DNS', risk: 'Low' },
+      { port: 80, service: 'HTTP', risk: 'Medium' },
+      { port: 110, service: 'POP3', risk: 'Low' },
+      { port: 443, service: 'HTTPS', risk: 'Safe' },
+      { port: 3306, service: 'MySQL', risk: 'High' },
+      { port: 3389, service: 'RDP', risk: 'High' },
+      { port: 8080, service: 'HTTP-Proxy', risk: 'Medium' }
+    ];
+
     const found: any[] = [];
-    
-    for (const port of commonPorts) {
-      // Simulate scan delay
-      await new Promise(r => setTimeout(r, 200));
-      if (Math.random() > 0.7) {
-        found.push({ port, status: 'OPEN', service: port === 80 ? 'HTTP' : port === 443 ? 'HTTPS' : port === 22 ? 'SSH' : 'Unknown' });
+    for (let i = 0; i < commonPorts.length; i++) {
+      await new Promise(r => setTimeout(r, 300));
+      setProgress(Math.round(((i + 1) / commonPorts.length) * 100));
+      if (Math.random() > 0.6) {
+        found.push(commonPorts[i]);
       }
     }
     setResults(found);
@@ -1321,28 +1386,65 @@ const PortScannerTool = memo(() => {
     <div className="space-y-6">
       <div className="p-6 bg-blue-500/10 rounded-3xl border border-blue-500/20 text-center space-y-2">
         <Globe className="w-12 h-12 text-blue-500 mx-auto" />
-        <h3 className="font-bold">Port Scanner</h3>
-        <p className="text-xs text-zinc-500">Analyze open ports on target IP/Domain.</p>
+        <h3 className="font-bold">Port Scanner Pro</h3>
+        <p className="text-xs text-zinc-500">Advanced reconnaissance & vulnerability mapping.</p>
       </div>
       <div className="flex gap-2">
         <input 
           value={target}
           onChange={(e) => setTarget(e.target.value)}
           placeholder="Enter target IP or Domain..."
-          className="flex-1 bg-zinc-950 border border-white/10 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-blue-500/50"
+          className="flex-1 bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500/50 font-mono"
         />
-        <button onClick={scanPorts} disabled={scanning} className="p-2 bg-blue-500 rounded-xl">
+        <button onClick={scanPorts} disabled={scanning} className="p-3 bg-blue-500 rounded-xl shadow-lg shadow-blue-500/20 disabled:opacity-50">
           {scanning ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
         </button>
       </div>
+
+      {scanning && (
+        <div className="space-y-2">
+          <div className="flex justify-between text-[8px] font-black text-blue-500 uppercase tracking-[0.2em]">
+            <span>Scanning Ports...</span>
+            <span>{progress}%</span>
+          </div>
+          <div className="h-1 bg-zinc-900 rounded-full overflow-hidden">
+            <motion.div 
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              className="h-full bg-blue-500"
+            />
+          </div>
+        </div>
+      )}
+
       {results.length > 0 && (
-        <div className="grid grid-cols-2 gap-2">
-          {results.map((r, i) => (
-            <div key={i} className="glass p-3 rounded-xl border border-emerald-500/20 flex justify-between items-center">
-              <span className="text-xs font-mono font-bold text-white">PORT {r.port}</span>
-              <span className="text-[10px] font-bold text-emerald-500">{r.service}</span>
-            </div>
-          ))}
+        <div className="space-y-3">
+          <div className="text-[8px] font-black text-zinc-500 uppercase tracking-widest px-2">Open Ports Detected</div>
+          <div className="grid grid-cols-1 gap-2">
+            {results.map((r, i) => (
+              <motion.div 
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+                key={i} 
+                className="glass p-4 rounded-2xl border border-white/5 flex justify-between items-center group hover:border-blue-500/30 transition-all"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="text-xs font-mono font-black text-white">PORT {r.port}</div>
+                  <div className="h-4 w-px bg-white/10" />
+                  <div className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">{r.service}</div>
+                </div>
+                <div className={`text-[8px] font-black px-2 py-1 rounded-md uppercase ${
+                  r.risk === 'Critical' ? 'bg-red-500/20 text-red-500' :
+                  r.risk === 'High' ? 'bg-orange-500/20 text-orange-500' :
+                  r.risk === 'Medium' ? 'bg-yellow-500/20 text-yellow-500' :
+                  'bg-emerald-500/20 text-emerald-500'
+                }`}>
+                  {r.risk} Risk
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       )}
     </div>

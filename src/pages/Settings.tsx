@@ -16,7 +16,8 @@ import {
   Send,
   Cpu,
   Zap,
-  Shield
+  Shield,
+  Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
@@ -24,7 +25,7 @@ import { useAuth } from '../context/AuthContext';
 const Settings: React.FC = () => {
   const { config, updateConfig } = useConfig();
   const { user } = useAuth();
-  const [activeSubTool, setActiveSubTool] = useState<'none' | 'files' | 'report' | 'chat' | 'monitor'>('none');
+  const [activeSubTool, setActiveSubTool] = useState<'none' | 'files' | 'report' | 'chat' | 'monitor' | 'request'>('none');
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +88,7 @@ const Settings: React.FC = () => {
                   { id: 'report', name: 'Report Issue', icon: MessageSquare, desc: 'Contact Admin/Owner' },
                   { id: 'chat', name: 'Group Chat', icon: Users, desc: 'Global community chat' },
                   { id: 'monitor', name: 'System Monitor', icon: Activity, desc: 'Real-time performance' },
+                  { id: 'request', name: 'Request Feature', icon: Zap, desc: 'Suggest new tools' },
                 ].map((item) => (
                   <button
                     key={item.id}
@@ -204,6 +206,7 @@ const Settings: React.FC = () => {
             {activeSubTool === 'report' && <ReportIssue user={user} />}
             {activeSubTool === 'chat' && <GroupChat user={user} />}
             {activeSubTool === 'monitor' && <SystemMonitor />}
+            {activeSubTool === 'request' && <RequestFeature user={user} />}
           </motion.div>
         )}
       </AnimatePresence>
@@ -341,14 +344,19 @@ const GroupChat = ({ user }: { user: any }) => {
 
 const SystemMonitor = () => {
   const [stats, setStats] = useState({ cpu: 0, ram: 0, net: 0 });
+  const [history, setHistory] = useState<{ cpu: number[], ram: number[] }>({ cpu: [], ram: [] });
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setStats({
-        cpu: Math.floor(Math.random() * 30) + 10,
-        ram: Math.floor(Math.random() * 20) + 40,
-        net: Math.floor(Math.random() * 100) + 50
-      });
+      const newCpu = Math.floor(Math.random() * 30) + 10;
+      const newRam = Math.floor(Math.random() * 20) + 40;
+      const newNet = Math.floor(Math.random() * 100) + 50;
+      
+      setStats({ cpu: newCpu, ram: newRam, net: newNet });
+      setHistory(prev => ({
+        cpu: [...prev.cpu.slice(-29), newCpu],
+        ram: [...prev.ram.slice(-29), newRam]
+      }));
     }, 2000);
     return () => clearInterval(interval);
   }, []);
@@ -360,10 +368,10 @@ const SystemMonitor = () => {
         <h3 className="text-lg font-bold uppercase tracking-widest">System Monitor</h3>
       </div>
       
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 gap-8">
         {[
-          { label: 'CPU LOAD', val: stats.cpu, icon: Cpu, color: 'text-blue-400', bar: 'bg-blue-500' },
-          { label: 'RAM USAGE', val: stats.ram, icon: Database, color: 'text-purple-400', bar: 'bg-purple-500' },
+          { label: 'CPU LOAD', val: stats.cpu, icon: Cpu, color: 'text-blue-400', bar: 'bg-blue-500', hist: history.cpu },
+          { label: 'RAM USAGE', val: stats.ram, icon: Database, color: 'text-purple-400', bar: 'bg-purple-500', hist: history.ram },
           { label: 'NETWORK SPEED', val: stats.net, icon: Zap, color: 'text-emerald-400', bar: 'bg-emerald-500', unit: 'MB/s' },
         ].map((s, i) => (
           <div key={i} className="space-y-3">
@@ -374,25 +382,93 @@ const SystemMonitor = () => {
               </div>
               <span className="text-sm font-mono font-bold text-zinc-200">{s.val}{s.unit || '%'}</span>
             </div>
+            
+            {s.hist && (
+              <div className="flex items-end gap-0.5 h-8 mb-1">
+                {s.hist.map((h, idx) => (
+                  <div 
+                    key={idx} 
+                    className={`flex-1 ${s.bar} opacity-20 rounded-t-sm`}
+                    style={{ height: `${h}%` }}
+                  />
+                ))}
+              </div>
+            )}
+
             <div className="h-2 bg-zinc-950 rounded-full overflow-hidden border border-white/5">
               <motion.div 
                 animate={{ width: `${s.val}%` }}
-                className={`h-full ${s.bar}`}
+                className={`h-full ${s.bar} shadow-[0_0_10px_rgba(0,0,0,0.5)]`}
               />
             </div>
           </div>
         ))}
       </div>
 
-      <div className="p-6 bg-emerald-500/5 border border-emerald-500/20 rounded-3xl">
-        <div className="flex items-center gap-3 mb-2">
+      <div className="p-6 bg-emerald-500/5 border border-emerald-500/20 rounded-3xl relative overflow-hidden">
+        <div className="flex items-center gap-3 mb-2 relative z-10">
           <Shield className="w-5 h-5 text-emerald-500" />
           <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-500">System Status</span>
         </div>
-        <p className="text-[10px] text-zinc-500 uppercase tracking-widest leading-relaxed">
-          All nodes operational. Firewall integrity at 100%. No unauthorized intrusions detected in the last 24 hours.
+        <p className="text-[10px] text-zinc-500 uppercase tracking-widest leading-relaxed relative z-10">
+          All nodes operational. Firewall integrity at 100%. No unauthorized intrusions detected in the last 24 hours. Kernel version 6.1.0-xzero-pro.
         </p>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full -mr-16 -mt-16 blur-3xl" />
       </div>
+    </div>
+  );
+};
+
+const RequestFeature = ({ user }: { user: any }) => {
+  const [feature, setFeature] = useState('');
+  const [desc, setDesc] = useState('');
+  const [isSending, setIsSending] = useState(false);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSending(true);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setIsSending(false);
+    alert('Feature request submitted to Nano Admin!');
+    setFeature('');
+    setDesc('');
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3 mb-6">
+        <Zap className="w-6 h-6 text-emerald-400" />
+        <h3 className="text-lg font-bold uppercase tracking-widest">Request Feature</h3>
+      </div>
+      <form onSubmit={submit} className="space-y-4">
+        <div className="space-y-2">
+          <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Feature Name</label>
+          <input 
+            value={feature}
+            onChange={(e) => setFeature(e.target.value)}
+            placeholder="e.g. Advanced SQL Injection Tool"
+            className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500/50"
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Description</label>
+          <textarea 
+            value={desc}
+            onChange={(e) => setDesc(e.target.value)}
+            placeholder="Explain how the feature should work..."
+            className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500/50 min-h-[150px] resize-none"
+            required
+          />
+        </div>
+        <button 
+          type="submit"
+          disabled={isSending}
+          className="w-full py-4 bg-emerald-500 text-black font-black rounded-2xl text-sm uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-emerald-400 transition-all disabled:opacity-50"
+        >
+          {isSending ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Submit Request'}
+        </button>
+      </form>
     </div>
   );
 };
