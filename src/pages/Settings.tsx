@@ -17,15 +17,17 @@ import {
   Cpu,
   Zap,
   Shield,
-  Loader2
+  Loader2,
+  LogIn
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 
 const Settings: React.FC = () => {
   const { config, updateConfig } = useConfig();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [activeSubTool, setActiveSubTool] = useState<'none' | 'files' | 'report' | 'chat' | 'monitor' | 'request'>('none');
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -192,7 +194,55 @@ const Settings: React.FC = () => {
                 <Save className="w-5 h-5" />
                 Save All Changes
               </button>
+
+              <button 
+                type="button"
+                onClick={() => setShowLogoutConfirm(true)}
+                className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold py-4 rounded-2xl border border-red-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+              >
+                <LogIn className="w-5 h-5" />
+                Logout Session
+              </button>
             </form>
+
+            <AnimatePresence>
+              {showLogoutConfirm && (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-[2000] bg-black/80 backdrop-blur-md flex items-center justify-center p-6"
+                >
+                  <motion.div 
+                    initial={{ scale: 0.9, y: 20 }}
+                    animate={{ scale: 1, y: 0 }}
+                    className="w-full max-w-xs glass p-8 rounded-[2.5rem] border border-red-500/20 text-center space-y-6"
+                  >
+                    <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto">
+                      <LogIn className="w-8 h-8 text-red-500" />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-bold">Logout?</h3>
+                      <p className="text-xs text-zinc-500">Are you sure you want to end your session?</p>
+                    </div>
+                    <div className="flex gap-3">
+                      <button 
+                        onClick={() => setShowLogoutConfirm(false)}
+                        className="flex-1 py-3 bg-zinc-900 rounded-xl text-xs font-bold uppercase"
+                      >
+                        Cancel
+                      </button>
+                      <button 
+                        onClick={() => logout()}
+                        className="flex-1 py-3 bg-red-500 text-white rounded-xl text-xs font-bold uppercase"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         ) : (
           <motion.div 

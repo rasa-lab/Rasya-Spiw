@@ -19,6 +19,21 @@ export const Login: React.FC = () => {
 
     setIsAuthenticating(true);
     
+    // Validation check before animation
+    if (!isRegistering) {
+      const users = JSON.parse(localStorage.getItem('nano_registered_users') || '[]');
+      const found = users.find((u: any) => 
+        (u.username === fullName || u.fullName === fullName) && u.password === password
+      );
+      const isOwner = fullName === 'Rasya_444_111' && password === 'RASYA_111_512';
+      
+      if (!found && !isOwner) {
+        alert('Invalid credentials. Access denied.');
+        setIsAuthenticating(false);
+        return;
+      }
+    }
+    
     if (isRegistering) {
       // Save to local storage for "real" registration feel
       const users = JSON.parse(localStorage.getItem('nano_registered_users') || '[]');
@@ -48,8 +63,13 @@ export const Login: React.FC = () => {
     }, 4000);
   };
 
-  const handleGetStarted = () => {
-    login(fullName);
+  const handleGetStarted = async () => {
+    // Call login with the credentials used
+    const success = await login(isRegistering ? username : fullName, password);
+    if (!success) {
+      alert('Session initialization failed. Please try again.');
+      setShowWelcomeModal(false);
+    }
   };
 
   return (
@@ -253,7 +273,7 @@ export const Login: React.FC = () => {
 
               <button
                 onClick={handleGetStarted}
-                className="w-full py-5 bg-emerald-500 hover:bg-emerald-400 text-black font-black rounded-2xl text-sm uppercase tracking-widest transition-all active:scale-95 shadow-xl shadow-emerald-500/20"
+                className="relative z-10 w-full py-5 bg-emerald-500 hover:bg-emerald-400 text-black font-black rounded-2xl text-sm uppercase tracking-widest transition-all active:scale-95 shadow-xl shadow-emerald-500/20"
               >
                 Get Started
               </button>

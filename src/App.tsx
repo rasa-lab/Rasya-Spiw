@@ -97,7 +97,7 @@ const AppContent = () => {
 
                 <button 
                   onClick={closeWelcome}
-                  className="w-full py-5 bg-emerald-500 text-black rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-xl shadow-emerald-500/20 hover:bg-emerald-400 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 group"
+                  className="relative z-10 w-full py-5 bg-emerald-500 text-black rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-xl shadow-emerald-500/20 hover:bg-emerald-400 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 group"
                 >
                   Enter System
                   <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

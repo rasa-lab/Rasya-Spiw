@@ -85,7 +85,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Normal User Check from LocalStorage
     const users = JSON.parse(localStorage.getItem('nano_registered_users') || '[]');
-    const foundUser = users.find((u: any) => u.username === username && u.password === password);
+    const foundUser = users.find((u: any) => 
+      (u.username === username || u.fullName === username) && u.password === password
+    );
     
     if (foundUser) {
       const loggedUser: User = { 
