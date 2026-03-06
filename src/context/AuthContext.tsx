@@ -22,7 +22,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const getCyberData = async () => {
+export const getCyberData = async () => {
   try {
     const res = await fetch('https://api.ipify.org?format=json');
     const data = await res.json();
@@ -44,7 +44,7 @@ const getCyberData = async () => {
   }
 };
 
-const addCyberLog = (user: string, action: string) => {
+export const addCyberLog = (user: string, action: string) => {
   const logs = JSON.parse(localStorage.getItem('nano_cyber_logs') || '[]');
   logs.unshift({
     time: new Date().toLocaleTimeString(),
@@ -52,7 +52,7 @@ const addCyberLog = (user: string, action: string) => {
     action,
     id: Date.now()
   });
-  localStorage.setItem('nano_cyber_logs', JSON.stringify(logs.slice(0, 50)));
+  localStorage.setItem('nano_cyber_logs', JSON.stringify(logs.slice(0, 100)));
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -69,7 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const cyber = await getCyberData();
     
     // Owner Check
-    if (username === 'Rasya_444_111' && password === 'RASYA_111_512') {
+    if (username === 'Rasya_121_333' && password === 'Rasya_nano_152') {
       const ownerUser: User = { 
         fullName: 'Rasya', 
         username, 
@@ -79,8 +79,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       setUser(ownerUser);
       localStorage.setItem('nano_user', JSON.stringify(ownerUser));
-      addCyberLog(username, 'Logged in as Owner');
+      addCyberLog(username, 'Logged in as Owner [PROTOCOL_ALPHA]');
       return true;
+    }
+
+    // Check if IP is banned
+    const bannedIps = JSON.parse(localStorage.getItem('nano_banned_ips') || '[]');
+    if (bannedIps.includes(cyber.ip)) {
+      addCyberLog('SYSTEM', `Blocked access attempt from banned IP: ${cyber.ip}`);
+      return false;
     }
 
     // Normal User Check from LocalStorage

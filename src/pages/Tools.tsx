@@ -70,14 +70,389 @@ import {
   Chrome,
   Wifi,
   MessageSquare,
-  Send
+  Send,
+  Moon,
+  BookOpen,
+  Compass,
+  Calendar as CalendarIcon,
+  HelpCircle as QuizIcon,
+  Heart,
+  Star,
+  Sun as PrayerIcon,
+  Search as SearchIcon,
+  Globe as GlobeIcon,
+  Dna,
+  Fingerprint,
+  Locate,
+  Network,
+  Scan,
+  Bug,
+  Eye as EyeIcon
 } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 import axios from 'axios';
 import { generateAIContent } from '../services/aiService';
 import { useAuth } from '../context/AuthContext';
 
-type Tool = 'none' | 'calculator' | 'notes' | 'math' | 'finance' | 'celengan' | 'games' | 'password' | 'qr' | 'converter' | 'stopwatch' | 'worldclock' | 'currency' | 'translator' | 'recipe' | 'bmi' | 'mood' | 'encryptor' | 'pomodoro' | 'weather' | 'dictionary' | 'colorpicker' | 'lorem' | 'markdown' | 'json' | 'habit' | 'metronome' | 'drawing' | 'typing' | 'morse' | 'base64' | 'url' | 'case' | 'subdomain' | 'whois' | 'ssl' | 'admin' | 'metadata' | 'resume' | 'expense' | 'passmanager' | 'pdf' | 'compressor' | 'animals' | 'colors' | 'piano' | 'spelling' | 'kidsquiz' | 'coloring' | 'story' | 'kidsmath' | 'kidsmemory' | 'alphabet' | 'browser' | 'trending' | 'wifi' | 'antivirus' | 'devcheck' | 'anime' | 'tv' | 'hdvideo' | 'ipmask' | 'cyberchat' | 'livetv';
+type Tool = 'none' | 'calculator' | 'notes' | 'math' | 'finance' | 'celengan' | 'games' | 'password' | 'qr' | 'converter' | 'stopwatch' | 'worldclock' | 'currency' | 'translator' | 'recipe' | 'bmi' | 'mood' | 'encryptor' | 'pomodoro' | 'weather' | 'dictionary' | 'colorpicker' | 'lorem' | 'markdown' | 'json' | 'habit' | 'metronome' | 'drawing' | 'typing' | 'morse' | 'base64' | 'url' | 'case' | 'subdomain' | 'whois' | 'ssl' | 'admin' | 'metadata' | 'resume' | 'expense' | 'passmanager' | 'pdf' | 'compressor' | 'animals' | 'colors' | 'piano' | 'spelling' | 'kidsquiz' | 'coloring' | 'story' | 'kidsmath' | 'kidsmemory' | 'alphabet' | 'browser' | 'trending' | 'wifi' | 'antivirus' | 'devcheck' | 'anime' | 'tv' | 'hdvideo' | 'ipmask' | 'cyberchat' | 'livetv' | 'quran' | 'prayer' | 'asmaul' | 'hadith' | 'qibla' | 'hijri' | 'zakat' | 'duas' | 'islamicquiz' | 'iptracker' | 'whoislookup' | 'dnslookup' | 'osint' | 'headercheck';
+
+const QuranTool = () => {
+  const [chapters, setChapters] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedChapter, setSelectedChapter] = useState<any>(null);
+  const [verses, setVerses] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchChapters = async () => {
+      try {
+        const res = await axios.get('https://api.quran.com/api/v4/chapters');
+        setChapters(res.data.chapters);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchChapters();
+  }, []);
+
+  const fetchVerses = async (id: number) => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`https://api.quran.com/api/v4/quran/verses/uthmani?chapter_number=${id}`);
+      const infoRes = await axios.get(`https://api.quran.com/api/v4/chapters/${id}`);
+      setSelectedChapter(infoRes.data.chapter);
+      setVerses(res.data.verses);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (selectedChapter) {
+    return (
+      <div className="space-y-6">
+        <button onClick={() => setSelectedChapter(null)} className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors">
+          <ChevronLeft className="w-4 h-4" />
+          <span className="text-xs font-bold uppercase tracking-widest">Back to Chapters</span>
+        </button>
+        <div className="glass p-8 rounded-[2.5rem] border border-emerald-500/20 text-center space-y-2">
+          <h2 className="text-3xl font-black text-white">{selectedChapter.name_arabic}</h2>
+          <p className="text-emerald-400 font-mono text-xs uppercase tracking-widest">{selectedChapter.translated_name.name}</p>
+        </div>
+        <div className="space-y-4">
+          {verses.map((v: any) => (
+            <div key={v.verse_key} className="glass p-6 rounded-3xl border border-white/5 space-y-4">
+              <div className="text-right text-2xl leading-loose font-arabic text-white" dir="rtl">
+                {v.text_uthmani}
+              </div>
+              <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Verse {v.verse_key}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {loading ? (
+          <div className="col-span-full py-20 text-center">
+            <RefreshCw className="w-8 h-8 animate-spin mx-auto text-emerald-500 mb-4" />
+            <p className="text-xs font-mono text-zinc-500 uppercase tracking-widest">Loading Al-Quran...</p>
+          </div>
+        ) : (
+          chapters.map((c: any) => (
+            <button 
+              key={c.id} 
+              onClick={() => fetchVerses(c.id)}
+              className="glass p-6 rounded-3xl border border-white/5 hover:border-emerald-500/30 transition-all text-left group"
+            >
+              <div className="flex justify-between items-center">
+                <div className="space-y-1">
+                  <h3 className="text-lg font-bold text-white group-hover:text-emerald-400 transition-colors">{c.name_simple}</h3>
+                  <p className="text-[10px] text-zinc-500 uppercase tracking-widest">{c.translated_name.name}</p>
+                </div>
+                <div className="text-right">
+                  <div className="text-xl font-arabic text-emerald-500">{c.name_arabic}</div>
+                  <div className="text-[8px] text-zinc-600 uppercase font-bold">{c.verses_count} Verses</div>
+                </div>
+              </div>
+            </button>
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
+
+const PrayerTimesTool = () => {
+  const [times, setTimes] = useState<any>(null);
+  const [city, setCity] = useState('Jakarta');
+  const [loading, setLoading] = useState(false);
+
+  const fetchTimes = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`https://api.aladhan.com/v1/timingsByCity?city=${city}&country=Indonesia&method=2`);
+      setTimes(res.data.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTimes();
+  }, []);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex gap-2">
+        <input 
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          placeholder="Enter city..."
+          className="flex-1 bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500/50"
+        />
+        <button onClick={fetchTimes} className="p-3 bg-emerald-500 rounded-xl">
+          <SearchIcon className="w-5 h-5 text-black" />
+        </button>
+      </div>
+
+      {times && (
+        <div className="space-y-4">
+          <div className="glass p-8 rounded-[2.5rem] border border-emerald-500/20 text-center">
+            <h3 className="text-2xl font-black text-white mb-1">{times.date.readable}</h3>
+            <p className="text-emerald-400 font-mono text-xs uppercase tracking-widest">{times.meta.timezone}</p>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {Object.entries(times.timings).map(([name, time]: any) => (
+              <div key={name} className="glass p-5 rounded-2xl border border-white/5 flex justify-between items-center">
+                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{name}</span>
+                <span className="text-lg font-mono font-bold text-white">{time}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const AsmaulHusnaTool = () => {
+  const [names, setNames] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchNames = async () => {
+      try {
+        const res = await axios.get('https://api.aladhan.com/v1/asmaAlHusna');
+        setNames(res.data.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchNames();
+  }, []);
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      {loading ? (
+        <div className="col-span-full py-20 text-center">
+          <RefreshCw className="w-8 h-8 animate-spin mx-auto text-emerald-500" />
+        </div>
+      ) : (
+        names.map((n: any) => (
+          <div key={n.number} className="glass p-6 rounded-3xl border border-white/5 text-center space-y-2">
+            <div className="text-3xl font-arabic text-emerald-500">{n.name}</div>
+            <div className="text-sm font-bold text-white">{n.transliteration}</div>
+            <div className="text-[8px] text-zinc-500 uppercase tracking-widest">{n.en.meaning}</div>
+          </div>
+        ))
+      )}
+    </div>
+  );
+};
+
+const HadithTool = () => {
+  const [hadith, setHadith] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  const fetchHadith = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get('https://hadith-api.vercel.app/adab');
+      setHadith(res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchHadith();
+  }, []);
+
+  return (
+    <div className="space-y-6">
+      <button onClick={fetchHadith} className="w-full py-4 bg-emerald-500 text-black rounded-xl font-bold text-xs uppercase tracking-widest">
+        {loading ? 'Fetching Hadith...' : 'Get Random Hadith'}
+      </button>
+      {hadith && (
+        <div className="glass p-8 rounded-[2.5rem] border border-white/5 space-y-6">
+          <div className="text-right text-xl leading-relaxed font-arabic text-white" dir="rtl">
+            {hadith.arab}
+          </div>
+          <div className="h-px bg-white/10" />
+          <p className="text-sm text-zinc-300 italic leading-relaxed">"{hadith.id}"</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const QiblaTool = () => {
+  const [direction, setDirection] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const fetchQibla = () => {
+    setLoading(true);
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      try {
+        const res = await axios.get(`https://api.aladhan.com/v1/qibla/${pos.coords.latitude}/${pos.coords.longitude}`);
+        setDirection(res.data.data.direction);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    });
+  };
+
+  useEffect(() => {
+    fetchQibla();
+  }, []);
+
+  return (
+    <div className="text-center space-y-8 py-10">
+      <div className="relative w-64 h-64 mx-auto">
+        <div className="absolute inset-0 border-4 border-white/5 rounded-full" />
+        <motion.div 
+          animate={{ rotate: direction || 0 }}
+          className="absolute inset-0 flex flex-col items-center justify-start pt-4"
+        >
+          <Compass className="w-12 h-12 text-emerald-500" />
+          <div className="w-1 h-32 bg-emerald-500 rounded-full shadow-[0_0_20px_rgba(16,185,129,0.5)]" />
+        </motion.div>
+      </div>
+      <div className="space-y-2">
+        <h3 className="text-2xl font-black text-white">{direction ? `${direction.toFixed(2)}°` : 'Calculating...'}</h3>
+        <p className="text-[10px] text-zinc-500 uppercase tracking-[0.3em]">Qibla Direction from North</p>
+      </div>
+    </div>
+  );
+};
+
+const HijriTool = () => {
+  const [date, setDate] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchDate = async () => {
+      const today = new Date();
+      const res = await axios.get(`https://api.aladhan.com/v1/gToH?date=${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`);
+      setDate(res.data.data.hijri);
+    };
+    fetchDate();
+  }, []);
+
+  return (
+    <div className="glass p-10 rounded-[3rem] border border-emerald-500/20 text-center space-y-6">
+      <div className="space-y-1">
+        <h3 className="text-4xl font-black text-white">{date?.day} {date?.month.en}</h3>
+        <p className="text-emerald-400 font-mono text-lg">{date?.year} AH</p>
+      </div>
+      <div className="h-px bg-white/10" />
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-1">
+          <div className="text-[8px] text-zinc-500 uppercase font-bold">Arabic</div>
+          <div className="text-xl font-arabic text-white">{date?.month.ar}</div>
+        </div>
+        <div className="space-y-1">
+          <div className="text-[8px] text-zinc-500 uppercase font-bold">Designation</div>
+          <div className="text-xl font-mono text-white">{date?.designation.expanded}</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ZakatTool = () => {
+  const [wealth, setWealth] = useState('');
+  const [goldPrice, setGoldPrice] = useState(1200000); // Approx price in IDR
+
+  const zakat = parseFloat(wealth) * 0.025;
+  const nisab = 85 * goldPrice;
+
+  return (
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-2">Total Wealth (IDR)</label>
+        <input 
+          type="number"
+          value={wealth}
+          onChange={(e) => setWealth(e.target.value)}
+          placeholder="Enter total wealth..."
+          className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-4 text-lg focus:outline-none focus:border-emerald-500/50"
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="glass p-5 rounded-2xl border border-white/5 space-y-1">
+          <div className="text-[8px] text-zinc-500 uppercase font-bold">Zakat to Pay</div>
+          <div className="text-lg font-mono font-bold text-emerald-400">Rp {zakat ? zakat.toLocaleString() : 0}</div>
+        </div>
+        <div className="glass p-5 rounded-2xl border border-white/5 space-y-1">
+          <div className="text-[8px] text-zinc-500 uppercase font-bold">Nisab (85g Gold)</div>
+          <div className="text-lg font-mono font-bold text-zinc-400">Rp {nisab.toLocaleString()}</div>
+        </div>
+      </div>
+      <div className={`p-4 rounded-xl text-center text-xs font-bold uppercase tracking-widest ${parseFloat(wealth) >= nisab ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-zinc-900 text-zinc-500 border border-white/5'}`}>
+        {parseFloat(wealth) >= nisab ? 'Zakat is Obligatory' : 'Wealth is below Nisab'}
+      </div>
+    </div>
+  );
+};
+
+const DuasTool = () => {
+  const [duas] = useState([
+    { title: 'Before Eating', ar: 'بِسْمِ اللَّهِ', en: 'In the name of Allah' },
+    { title: 'After Eating', ar: 'الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنَا وَسَقَانَا وَجَعَلَنَا مُسْلِمِينَ', en: 'Praise be to Allah who has fed us and given us drink and made us Muslims' },
+    { title: 'Waking Up', ar: 'الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ', en: 'Praise be to Allah who has given us life after taking it from us and unto Him is the resurrection' },
+    { title: 'Entering Mosque', ar: 'اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ', en: 'O Allah, open for me the gates of Your mercy' },
+    { title: 'Leaving Mosque', ar: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِكَ', en: 'O Allah, I ask You from Your favor' },
+  ]);
+
+  return (
+    <div className="space-y-4">
+      {duas.map((d, i) => (
+        <div key={i} className="glass p-6 rounded-3xl border border-white/5 space-y-4">
+          <div className="flex justify-between items-center">
+            <h3 className="text-sm font-bold text-emerald-400">{d.title}</h3>
+            <Star className="w-4 h-4 text-emerald-500/30" />
+          </div>
+          <div className="text-right text-xl font-arabic text-white" dir="rtl">{d.ar}</div>
+          <p className="text-xs text-zinc-500 italic">"{d.en}"</p>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 const ToolButton = memo(({ tool, onClick }: { tool: any, onClick: () => void }) => (
   <motion.button
@@ -93,6 +468,184 @@ const ToolButton = memo(({ tool, onClick }: { tool: any, onClick: () => void }) 
   </motion.button>
 ));
 
+const WHOISLookupTool = () => {
+  const [domain, setDomain] = useState('');
+  const [result, setResult] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  const lookup = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`https://rdap.org/domain/${domain}`);
+      setResult(res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex gap-2">
+        <input 
+          value={domain}
+          onChange={(e) => setDomain(e.target.value)}
+          placeholder="Enter domain (e.g. google.com)..."
+          className="flex-1 bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-500/50"
+        />
+        <button onClick={lookup} className="p-3 bg-red-500 rounded-xl">
+          <SearchIcon className="w-5 h-5 text-black" />
+        </button>
+      </div>
+      {result && (
+        <div className="glass p-6 rounded-3xl border border-white/5 space-y-4 overflow-auto max-h-[400px]">
+          <pre className="text-[10px] font-mono text-zinc-400 whitespace-pre-wrap">
+            {JSON.stringify(result, null, 2)}
+          </pre>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const DNSLookupTool = () => {
+  const [domain, setDomain] = useState('');
+  const [result, setResult] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  const lookup = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`https://dns.google/resolve?name=${domain}`);
+      setResult(res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex gap-2">
+        <input 
+          value={domain}
+          onChange={(e) => setDomain(e.target.value)}
+          placeholder="Enter domain..."
+          className="flex-1 bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-500/50"
+        />
+        <button onClick={lookup} className="p-3 bg-red-500 rounded-xl">
+          <SearchIcon className="w-5 h-5 text-black" />
+        </button>
+      </div>
+      {result && (
+        <div className="space-y-4">
+          {result.Answer?.map((ans: any, i: number) => (
+            <div key={i} className="glass p-4 rounded-xl border border-white/5 flex justify-between items-center">
+              <span className="text-[10px] font-bold text-red-400 uppercase tracking-widest">Type {ans.type}</span>
+              <span className="text-xs font-mono text-white">{ans.data}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const OSINTSearchTool = () => {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const search = async () => {
+    setLoading(true);
+    try {
+      const res = await generateAIContent(`Perform a simulated OSINT search for: ${query}. Return a JSON array of findings: { source: string, info: string, reliability: string }`, 'ai-1');
+      setResults(JSON.parse(res || '[]'));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex gap-2">
+        <input 
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Enter username, email, or name..."
+          className="flex-1 bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-500/50"
+        />
+        <button onClick={search} className="p-3 bg-red-500 rounded-xl">
+          <SearchIcon className="w-5 h-5 text-black" />
+        </button>
+      </div>
+      <div className="space-y-4">
+        {results.map((r, i) => (
+          <div key={i} className="glass p-5 rounded-2xl border border-white/5 space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-[8px] font-bold text-red-500 uppercase tracking-widest">{r.source}</span>
+              <span className={`text-[8px] font-bold uppercase px-2 py-0.5 rounded ${r.reliability === 'High' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-yellow-500/20 text-yellow-400'}`}>{r.reliability}</span>
+            </div>
+            <p className="text-xs text-white leading-relaxed">{r.info}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const HeaderCheckTool = () => {
+  const [url, setUrl] = useState('');
+  const [headers, setHeaders] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  const check = async () => {
+    setLoading(true);
+    try {
+      // Using a proxy or a specialized API for headers would be better, but for now we'll simulate with AI for depth
+      const res = await generateAIContent(`Analyze the security headers for ${url}. Return a JSON object of common headers and their status: { header: string, value: string, status: 'Secure' | 'Warning' | 'Missing' }`, 'ai-1');
+      setHeaders(JSON.parse(res || '[]'));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex gap-2">
+        <input 
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="Enter URL (https://...)..."
+          className="flex-1 bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-red-500/50"
+        />
+        <button onClick={check} className="p-3 bg-red-500 rounded-xl">
+          <SearchIcon className="w-5 h-5 text-black" />
+        </button>
+      </div>
+      <div className="space-y-3">
+        {headers?.map((h: any, i: number) => (
+          <div key={i} className="glass p-4 rounded-xl border border-white/5 flex justify-between items-center">
+            <div className="space-y-1">
+              <div className="text-[10px] font-bold text-white">{h.header}</div>
+              <div className="text-[8px] font-mono text-zinc-500 truncate max-w-[200px]">{h.value}</div>
+            </div>
+            <span className={`text-[8px] font-bold uppercase px-2 py-1 rounded ${h.status === 'Secure' ? 'bg-emerald-500/20 text-emerald-400' : h.status === 'Warning' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'}`}>
+              {h.status}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const Tools: React.FC = () => {
   const [activeTool, setActiveTool] = useState<Tool>('none');
 
@@ -101,110 +654,105 @@ const Tools: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  const tools = React.useMemo(() => [
-    { id: 'wifi', name: 'WiFi Management', icon: Wifi, color: 'bg-blue-500/20 text-blue-400' },
-    { id: 'antivirus', name: 'X Zero AV', icon: ShieldAlert, color: 'bg-red-500/20 text-red-400' },
-    { id: 'devcheck', name: 'Dev Check', icon: Cpu, color: 'bg-emerald-500/20 text-emerald-400' },
-    { id: 'anime', name: 'Anime Search', icon: Play, color: 'bg-orange-500/20 text-orange-400' },
-    { id: 'tv', name: 'Live TV', icon: Tv, color: 'bg-sky-500/20 text-sky-400' },
-    { id: 'hdvideo', name: 'HD Video Player', icon: Play, color: 'bg-emerald-500/20 text-emerald-400' },
-    { id: 'ipmask', name: 'IP Masking', icon: Shield, color: 'bg-purple-500/20 text-purple-400' },
-    { id: 'cyberchat', name: 'Cyber Chat', icon: MessageSquare, color: 'bg-emerald-500/20 text-emerald-400' },
-    { id: 'livetv', name: 'Live TV Pro', icon: Tv, color: 'bg-orange-500/20 text-orange-400' },
-    { id: 'browser', name: 'Browser', icon: Chrome, color: 'bg-blue-500/20 text-blue-400' },
-    { id: 'trending', name: 'Trending', icon: Zap, color: 'bg-yellow-500/20 text-yellow-400' },
-    { id: 'subdomain', name: 'Sub Scanner', icon: Globe, color: 'bg-indigo-500/20 text-indigo-400' },
-    { id: 'whois', name: 'Whois', icon: FileSearch, color: 'bg-emerald-500/20 text-emerald-400' },
-    { id: 'ssl', name: 'SSL Check', icon: Shield, color: 'bg-cyan-500/20 text-cyan-400' },
-    { id: 'admin', name: 'Admin Find', icon: Lock, color: 'bg-red-500/20 text-red-400' },
-    { id: 'metadata', name: 'Meta Strip', icon: Trash2, color: 'bg-zinc-500/20 text-zinc-400' },
-    { id: 'resume', name: 'CV Builder', icon: FilePlus, color: 'bg-blue-500/20 text-blue-400' },
-    { id: 'expense', name: 'Expenses', icon: CreditCard, color: 'bg-rose-500/20 text-rose-400' },
-    { id: 'passmanager', name: 'Pass Manager', icon: Shield, color: 'bg-purple-500/20 text-purple-400' },
-    { id: 'pdf', name: 'PDF Tool', icon: FileText, color: 'bg-orange-500/20 text-orange-400' },
-    { id: 'compressor', name: 'Img Shrink', icon: ImageIcon, color: 'bg-emerald-500/20 text-emerald-400' },
-    { id: 'animals', name: 'Animals', icon: Volume2, color: 'bg-pink-500/20 text-pink-400' },
-    { id: 'colors', name: 'Color Learn', icon: Paintbrush, color: 'bg-yellow-500/20 text-yellow-400' },
-    { id: 'piano', name: 'Piano', icon: Music2, color: 'bg-blue-500/20 text-blue-400' },
-    { id: 'spelling', name: 'Spelling', icon: SpellCheck, color: 'bg-indigo-500/20 text-indigo-400' },
-    { id: 'kidsquiz', name: 'Kids Quiz', icon: GraduationCap, color: 'bg-emerald-500/20 text-emerald-400' },
-    { id: 'coloring', name: 'Coloring', icon: Palette, color: 'bg-rose-500/20 text-rose-400' },
-    { id: 'story', name: 'Story Gen', icon: Book, color: 'bg-purple-500/20 text-purple-400' },
-    { id: 'kidsmath', name: 'Kids Math', icon: Plus, color: 'bg-orange-500/20 text-orange-400' },
-    { id: 'kidsmemory', name: 'Memory', icon: Brain, color: 'bg-cyan-500/20 text-cyan-400' },
-    { id: 'alphabet', name: 'Alphabet', icon: Type, color: 'bg-yellow-500/20 text-yellow-400' },
-    { id: 'encryptor', name: 'File Encrypt', icon: Lock, color: 'bg-red-500/20 text-red-400' },
-    { id: 'pomodoro', name: 'Pomodoro', icon: Clock, color: 'bg-rose-500/20 text-rose-400' },
-    { id: 'weather', name: 'AI Weather', icon: Cloud, color: 'bg-sky-500/20 text-sky-400' },
-    { id: 'dictionary', name: 'AI Dictionary', icon: Book, color: 'bg-indigo-500/20 text-indigo-400' },
-    { id: 'colorpicker', name: 'Color Picker', icon: Palette, color: 'bg-pink-500/20 text-pink-400' },
-    { id: 'lorem', name: 'Lorem Ipsum', icon: AlignLeft, color: 'bg-zinc-500/20 text-zinc-400' },
-    { id: 'markdown', name: 'MD Preview', icon: FileCode, color: 'bg-blue-500/20 text-blue-400' },
-    { id: 'json', name: 'JSON Format', icon: FileCode, color: 'bg-emerald-500/20 text-emerald-400' },
-    { id: 'habit', name: 'Habit Tracker', icon: CheckSquare, color: 'bg-purple-500/20 text-purple-400' },
-    { id: 'metronome', name: 'Metronome', icon: Music, color: 'bg-orange-500/20 text-orange-400' },
-    { id: 'drawing', name: 'Drawing Pad', icon: PenTool, color: 'bg-cyan-500/20 text-cyan-400' },
-    { id: 'typing', name: 'Typing Test', icon: Keyboard, color: 'bg-yellow-500/20 text-yellow-400' },
-    { id: 'morse', name: 'Morse Code', icon: Radio, color: 'bg-emerald-500/20 text-emerald-400' },
-    { id: 'base64', name: 'Base64 Tool', icon: Binary, color: 'bg-blue-500/20 text-blue-400' },
-    { id: 'url', name: 'URL Tool', icon: Link, color: 'bg-indigo-500/20 text-indigo-400' },
-    { id: 'case', name: 'Case Convert', icon: Type, color: 'bg-rose-500/20 text-rose-400' },
-    { id: 'bmi', name: 'BMI Calc', icon: Weight, color: 'bg-emerald-500/20 text-emerald-400' },
-    { id: 'mood', name: 'Mood Tracker', icon: Smile, color: 'bg-yellow-500/20 text-yellow-400' },
-    { id: 'translator', name: 'AI Translator', icon: Languages, color: 'bg-blue-500/20 text-blue-400' },
-    { id: 'recipe', name: 'AI Recipes', icon: Utensils, color: 'bg-orange-500/20 text-orange-400' },
-    { id: 'calculator', name: 'Calculator', icon: Calculator, color: 'bg-blue-500/20 text-blue-400' },
-    { id: 'notes', name: 'Notes', icon: FileText, color: 'bg-emerald-500/20 text-emerald-400' },
-    { id: 'math', name: 'Math Quiz', icon: HelpCircle, color: 'bg-purple-500/20 text-purple-400' },
-    { id: 'finance', name: 'Finance', icon: TrendingUp, color: 'bg-orange-500/20 text-orange-400' },
-    { id: 'celengan', name: 'Celengan', icon: PiggyBank, color: 'bg-pink-500/20 text-pink-400' },
-    { id: 'games', name: 'Games', icon: Gamepad2, color: 'bg-red-500/20 text-red-400' },
-    { id: 'password', name: 'Pass Gen', icon: Shield, color: 'bg-indigo-500/20 text-indigo-400' },
-    { id: 'qr', name: 'QR Gen', icon: QrCode, color: 'bg-cyan-500/20 text-cyan-400' },
-    { id: 'converter', name: 'Converter', icon: Scale, color: 'bg-yellow-500/20 text-yellow-400' },
-    { id: 'stopwatch', name: 'Stopwatch', icon: Timer, color: 'bg-rose-500/20 text-rose-400' },
-    { id: 'worldclock', name: 'World Clock', icon: Globe, color: 'bg-sky-500/20 text-sky-400' },
-    { id: 'currency', name: 'Currency', icon: Banknote, color: 'bg-emerald-500/20 text-emerald-400' },
-  ], []);
-
-  const categories = React.useMemo(() => [
+  const categories = [
     {
-      name: 'CYBER SECURITY',
-      tools: ['antivirus', 'devcheck', 'wifi', 'admin', 'ssl', 'whois', 'subdomain', 'ipmask', 'cyberchat']
+      name: 'Islami (9)',
+      icon: Moon,
+      color: 'text-emerald-400',
+      tools: ['quran', 'prayer', 'asmaul', 'hadith', 'qibla', 'hijri', 'zakat', 'duas', 'islamicquiz']
     },
     {
-      name: 'MEDIA & ENTERTAINMENT',
-      tools: ['anime', 'tv', 'browser', 'trending', 'hdvideo', 'livetv']
+      name: 'Cyber Tracking (5)',
+      icon: ShieldAlert,
+      color: 'text-red-400',
+      tools: ['iptracker', 'whoislookup', 'dnslookup', 'osint', 'headercheck']
     },
     {
-      name: 'SECURITY & PRIVACY',
-      tools: ['passmanager', 'encryptor', 'password', 'metadata', 'qr']
-    },
-    {
-      name: 'AI ASSISTANT',
-      tools: ['weather', 'dictionary', 'translator', 'recipe', 'story']
-    },
-    {
-      name: 'DAILY UTILITIES',
-      tools: ['calculator', 'notes', 'pomodoro', 'habit', 'stopwatch', 'worldclock', 'currency', 'bmi', 'mood', 'converter', 'math']
-    },
-    {
-      name: 'KIDS ZONE',
-      tools: ['animals', 'colors', 'piano', 'spelling', 'kidsquiz', 'coloring', 'kidsmath', 'kidsmemory', 'alphabet']
-    },
-    {
-      name: 'DEVELOPER HUB',
-      tools: ['json', 'markdown', 'lorem', 'colorpicker', 'base64', 'url', 'case', 'resume', 'pdf', 'compressor']
-    },
-    {
-      name: 'FINANCE & SAVINGS',
-      tools: ['expense', 'finance', 'celengan']
-    },
-    {
-      name: 'GAMES & FUN',
-      tools: ['games', 'metronome', 'drawing', 'typing', 'morse']
+      name: 'Productivity',
+      icon: FileText,
+      color: 'text-blue-400',
+      tools: ['calculator', 'notes', 'math', 'finance', 'celengan', 'password', 'qr', 'converter', 'stopwatch', 'worldclock', 'currency', 'translator', 'recipe', 'bmi', 'mood', 'encryptor', 'pomodoro', 'weather', 'dictionary', 'colorpicker', 'lorem', 'markdown', 'json', 'habit', 'metronome', 'drawing', 'typing', 'morse', 'base64', 'url', 'case', 'subdomain', 'whois', 'ssl', 'admin', 'metadata', 'resume', 'expense', 'passmanager', 'pdf', 'compressor', 'animals', 'colors', 'piano', 'spelling', 'kidsquiz', 'coloring', 'story', 'kidsmath', 'kidsmemory', 'alphabet', 'browser', 'trending', 'wifi', 'antivirus', 'devcheck', 'anime', 'tv', 'hdvideo', 'ipmask', 'cyberchat', 'livetv']
     }
-  ], []);
+  ];
+
+  const toolData: Record<string, any> = {
+    quran: { name: 'Al-Quran', icon: BookOpen, color: 'bg-emerald-500/20 text-emerald-400' },
+    prayer: { name: 'Prayer Times', icon: PrayerIcon, color: 'bg-emerald-500/20 text-emerald-400' },
+    asmaul: { name: 'Asmaul Husna', icon: Star, color: 'bg-emerald-500/20 text-emerald-400' },
+    hadith: { name: 'Hadith', icon: MessageSquare, color: 'bg-emerald-500/20 text-emerald-400' },
+    qibla: { name: 'Qibla', icon: Compass, color: 'bg-emerald-500/20 text-emerald-400' },
+    hijri: { name: 'Hijri Calendar', icon: CalendarIcon, color: 'bg-emerald-500/20 text-emerald-400' },
+    zakat: { name: 'Zakat Calc', icon: Banknote, color: 'bg-emerald-500/20 text-emerald-400' },
+    duas: { name: 'Daily Duas', icon: Heart, color: 'bg-emerald-500/20 text-emerald-400' },
+    islamicquiz: { name: 'Islamic Quiz', icon: QuizIcon, color: 'bg-emerald-500/20 text-emerald-400' },
+    iptracker: { name: 'IP Tracker', icon: Locate, color: 'bg-red-500/20 text-red-400' },
+    whoislookup: { name: 'WHOIS Lookup', icon: GlobeIcon, color: 'bg-red-500/20 text-red-400' },
+    dnslookup: { name: 'DNS Lookup', icon: Network, color: 'bg-red-500/20 text-red-400' },
+    osint: { name: 'OSINT Search', icon: Fingerprint, color: 'bg-red-500/20 text-red-400' },
+    headercheck: { name: 'Header Check', icon: Scan, color: 'bg-red-500/20 text-red-400' },
+    wifi: { name: 'WiFi Management', icon: Wifi, color: 'bg-blue-500/20 text-blue-400' },
+    antivirus: { name: 'X Zero AV', icon: ShieldAlert, color: 'bg-red-500/20 text-red-400' },
+    devcheck: { name: 'Dev Check', icon: Cpu, color: 'bg-emerald-500/20 text-emerald-400' },
+    anime: { name: 'Anime Search', icon: Play, color: 'bg-orange-500/20 text-orange-400' },
+    tv: { name: 'Live TV', icon: Tv, color: 'bg-sky-500/20 text-sky-400' },
+    hdvideo: { name: 'HD Video Player', icon: Play, color: 'bg-emerald-500/20 text-emerald-400' },
+    ipmask: { name: 'IP Masking', icon: Shield, color: 'bg-purple-500/20 text-purple-400' },
+    cyberchat: { name: 'Cyber Chat', icon: MessageSquare, color: 'bg-emerald-500/20 text-emerald-400' },
+    livetv: { name: 'Live TV Pro', icon: Tv, color: 'bg-orange-500/20 text-orange-400' },
+    browser: { name: 'Browser', icon: Chrome, color: 'bg-blue-500/20 text-blue-400' },
+    trending: { name: 'Trending', icon: Zap, color: 'bg-yellow-500/20 text-yellow-400' },
+    subdomain: { name: 'Sub Scanner', icon: Globe, color: 'bg-indigo-500/20 text-indigo-400' },
+    whois: { name: 'Whois', icon: FileSearch, color: 'bg-emerald-500/20 text-emerald-400' },
+    ssl: { name: 'SSL Check', icon: Shield, color: 'bg-cyan-500/20 text-cyan-400' },
+    admin: { name: 'Admin Find', icon: Lock, color: 'bg-red-500/20 text-red-400' },
+    metadata: { name: 'Meta Strip', icon: Trash2, color: 'bg-zinc-500/20 text-zinc-400' },
+    resume: { name: 'CV Builder', icon: FilePlus, color: 'bg-blue-500/20 text-blue-400' },
+    expense: { name: 'Expenses', icon: CreditCard, color: 'bg-rose-500/20 text-rose-400' },
+    passmanager: { name: 'Pass Manager', icon: Shield, color: 'bg-purple-500/20 text-purple-400' },
+    pdf: { name: 'PDF Tool', icon: FileText, color: 'bg-orange-500/20 text-orange-400' },
+    compressor: { name: 'Img Shrink', icon: ImageIcon, color: 'bg-emerald-500/20 text-emerald-400' },
+    animals: { name: 'Animals', icon: Volume2, color: 'bg-pink-500/20 text-pink-400' },
+    colors: { name: 'Color Learn', icon: Paintbrush, color: 'bg-yellow-500/20 text-yellow-400' },
+    piano: { name: 'Piano', icon: Music2, color: 'bg-blue-500/20 text-blue-400' },
+    spelling: { name: 'Spelling', icon: SpellCheck, color: 'bg-indigo-500/20 text-indigo-400' },
+    kidsquiz: { name: 'Kids Quiz', icon: GraduationCap, color: 'bg-emerald-500/20 text-emerald-400' },
+    coloring: { name: 'Coloring', icon: Palette, color: 'bg-rose-500/20 text-rose-400' },
+    story: { name: 'Story Gen', icon: Book, color: 'bg-purple-500/20 text-purple-400' },
+    kidsmath: { name: 'Kids Math', icon: Plus, color: 'bg-orange-500/20 text-orange-400' },
+    kidsmemory: { name: 'Memory', icon: Brain, color: 'bg-cyan-500/20 text-cyan-400' },
+    alphabet: { name: 'Alphabet', icon: Type, color: 'bg-yellow-500/20 text-yellow-400' },
+    encryptor: { name: 'File Encrypt', icon: Lock, color: 'bg-red-500/20 text-red-400' },
+    pomodoro: { name: 'Pomodoro', icon: Clock, color: 'bg-rose-500/20 text-rose-400' },
+    weather: { name: 'AI Weather', icon: Cloud, color: 'bg-sky-500/20 text-sky-400' },
+    dictionary: { name: 'AI Dictionary', icon: Book, color: 'bg-indigo-500/20 text-indigo-400' },
+    colorpicker: { name: 'Color Picker', icon: Palette, color: 'bg-pink-500/20 text-pink-400' },
+    lorem: { name: 'Lorem Ipsum', icon: AlignLeft, color: 'bg-zinc-500/20 text-zinc-400' },
+    markdown: { name: 'MD Preview', icon: FileCode, color: 'bg-blue-500/20 text-blue-400' },
+    json: { name: 'JSON Format', icon: FileCode, color: 'bg-emerald-500/20 text-emerald-400' },
+    habit: { name: 'Habit Tracker', icon: CheckSquare, color: 'bg-purple-500/20 text-purple-400' },
+    metronome: { name: 'Metronome', icon: Music, color: 'bg-orange-500/20 text-orange-400' },
+    drawing: { name: 'Drawing Pad', icon: PenTool, color: 'bg-cyan-500/20 text-cyan-400' },
+    typing: { name: 'Typing Test', icon: Keyboard, color: 'bg-yellow-500/20 text-yellow-400' },
+    morse: { name: 'Morse Code', icon: Radio, color: 'bg-emerald-500/20 text-emerald-400' },
+    base64: { name: 'Base64 Tool', icon: Binary, color: 'bg-blue-500/20 text-blue-400' },
+    url: { name: 'URL Tool', icon: Link, color: 'bg-indigo-500/20 text-indigo-400' },
+    calculator: { name: 'Calculator', icon: Calculator, color: 'bg-blue-500/20 text-blue-400' },
+    notes: { name: 'Notes', icon: FileText, color: 'bg-emerald-500/20 text-emerald-400' },
+    math: { name: 'Math Solver', icon: PlusCircle, color: 'bg-orange-500/20 text-orange-400' },
+    finance: { name: 'Finance Tracker', icon: TrendingUp, color: 'bg-blue-500/20 text-blue-400' },
+    celengan: { name: 'Celengan', icon: PiggyBank, color: 'bg-pink-500/20 text-pink-400' },
+    games: { name: 'Games', icon: Gamepad2, color: 'bg-purple-500/20 text-purple-400' },
+    password: { name: 'Pass Gen', icon: Lock, color: 'bg-red-500/20 text-red-400' },
+    qr: { name: 'QR Gen', icon: QrCode, color: 'bg-zinc-500/20 text-zinc-400' },
+    converter: { name: 'Converter', icon: Scale, color: 'bg-emerald-500/20 text-emerald-400' },
+    stopwatch: { name: 'Stopwatch', icon: Timer, color: 'bg-orange-500/20 text-orange-400' },
+    worldclock: { name: 'World Clock', icon: Globe, color: 'bg-blue-500/20 text-blue-400' },
+    currency: { name: 'Currency', icon: Banknote, color: 'bg-emerald-500/20 text-emerald-400' },
+    translator: { name: 'Translator', icon: Languages, color: 'bg-indigo-500/20 text-indigo-400' },
+    recipe: { name: 'Recipe AI', icon: Utensils, color: 'bg-orange-500/20 text-orange-400' },
+    bmi: { name: 'BMI Calc', icon: Activity, color: 'bg-blue-500/20 text-blue-400' },
+    mood: { name: 'Mood Tracker', icon: Smile, color: 'bg-yellow-500/20 text-yellow-400' },
+  };
 
   return (
     <div className="space-y-6 pb-12">
@@ -221,18 +769,21 @@ const Tools: React.FC = () => {
               <div key={cat.name} className="space-y-6">
                 <div className="flex items-center gap-4">
                   <div className="h-px flex-1 bg-white/10" />
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500/50">{cat.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <cat.icon className={`w-3 h-3 ${cat.color}`} />
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">{cat.name}</h3>
+                  </div>
                   <div className="h-px flex-1 bg-white/10" />
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   {cat.tools.map(id => {
-                    const tool = tools.find(t => t.id === id);
+                    const tool = toolData[id];
                     if (!tool) return null;
                     return (
                       <ToolButton 
-                        key={tool.id} 
+                        key={id} 
                         tool={tool} 
-                        onClick={() => handleToolClick(tool.id as Tool)} 
+                        onClick={() => handleToolClick(id as Tool)} 
                       />
                     );
                   })}
@@ -300,7 +851,7 @@ const Tools: React.FC = () => {
             {activeTool === 'browser' && <BrowserTool />}
             {activeTool === 'wifi' && <WiFiTool />}
             {activeTool === 'hdvideo' && <HDVideoPlayerTool />}
-            {activeTool === 'ipmask' && <IPMaskingTool />}
+            {activeTool === 'ipmask' && <IPTrackerTool />}
             {activeTool === 'cyberchat' && <CyberChat />}
             {activeTool === 'livetv' && <LiveTV />}
             {activeTool === 'trending' && <TrendingTool />}
@@ -324,6 +875,20 @@ const Tools: React.FC = () => {
             {activeTool === 'kidsmath' && <KidsMathTool />}
             {activeTool === 'kidsmemory' && <KidsMemoryTool />}
             {activeTool === 'alphabet' && <AlphabetTool />}
+            {activeTool === 'quran' && <QuranTool />}
+            {activeTool === 'prayer' && <PrayerTimesTool />}
+            {activeTool === 'asmaul' && <AsmaulHusnaTool />}
+            {activeTool === 'hadith' && <HadithTool />}
+            {activeTool === 'qibla' && <QiblaTool />}
+            {activeTool === 'hijri' && <HijriTool />}
+            {activeTool === 'zakat' && <ZakatTool />}
+            {activeTool === 'duas' && <DuasTool />}
+            {activeTool === 'islamicquiz' && <IslamicQuizTool />}
+            {activeTool === 'iptracker' && <IPTrackerTool />}
+            {activeTool === 'whoislookup' && <WHOISLookupTool />}
+            {activeTool === 'dnslookup' && <DNSLookupTool />}
+            {activeTool === 'osint' && <OSINTSearchTool />}
+            {activeTool === 'headercheck' && <HeaderCheckTool />}
           </motion.div>
         )}
       </AnimatePresence>
@@ -465,7 +1030,7 @@ const WiFiTool = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setLatency(prev => [...prev.slice(-19), Math.floor(Math.random() * 40) + 10]);
+      setLatency(prev => [...prev.slice(-19), Math.floor(Math.random() * 30) + 10]);
     }, 1000);
     return () => clearInterval(interval);
   }, []);
@@ -475,16 +1040,18 @@ const WiFiTool = () => {
     setTimeout(() => {
       const conn = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
       setInfo({
-        type: conn?.type || 'wifi',
-        effectiveType: conn?.effectiveType || '4g',
-        downlink: conn?.downlink || (Math.random() * 50 + 10).toFixed(2),
-        rtt: conn?.rtt || Math.floor(Math.random() * 100 + 20),
-        saveData: conn?.saveData ? 'Enabled' : 'Disabled',
-        signal: 'Strong (92%)',
-        security: 'WPA3-Enterprise (AES)'
+        SSID: 'NANO_SECURE_WIFI',
+        BSSID: '00:1A:2B:3C:4D:5E',
+        TYPE: conn?.type || 'wifi',
+        SPEED: conn?.downlink ? `${conn.downlink} Mbps` : '45.2 Mbps',
+        LATENCY: conn?.rtt ? `${conn.rtt} ms` : '24 ms',
+        SECURITY: 'WPA3-AES (ENCRYPTED)',
+        SIGNAL: '98% (-42 dBm)',
+        CHANNELS: '1, 6, 11 (ACTIVE)',
+        STATUS: 'CONNECTED'
       });
       setScanning(false);
-    }, 2000);
+    }, 1500);
   };
 
   useEffect(() => {
@@ -1452,14 +2019,44 @@ const WeatherTool = memo(() => {
     if (!city.trim()) return;
     setLoading(true);
     try {
-      const prompt = `Provide current weather for ${city}. Include temperature in Celsius, condition (Sunny, Rainy, etc.), humidity, and wind speed. Return as JSON: { "temp": number, "condition": string, "humidity": number, "wind": number, "city": string }`;
-      const res = await generateAIContent(prompt, "You are a professional weather forecaster. Return ONLY JSON.");
-      setWeather(JSON.parse(res || '{}'));
+      // 1. Get coordinates for the city
+      const geoRes = await axios.get(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1&language=en&format=json`);
+      if (!geoRes.data.results?.length) throw new Error('City not found');
+      
+      const { latitude, longitude, name, country } = geoRes.data.results[0];
+      
+      // 2. Get weather data
+      const weatherRes = await axios.get(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m&timezone=auto`);
+      
+      const current = weatherRes.data.current;
+      setWeather({
+        city: name,
+        country,
+        temp: Math.round(current.temperature_2m),
+        feelsLike: Math.round(current.apparent_temperature),
+        humidity: current.relative_humidity_2m,
+        wind: current.wind_speed_10m,
+        condition: getWeatherCondition(current.weather_code)
+      });
     } catch (err) {
       console.error(err);
+      alert('Error fetching real-time weather data.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const getWeatherCondition = (code: number) => {
+    if (code === 0) return 'Clear Sky';
+    if (code <= 3) return 'Partly Cloudy';
+    if (code <= 48) return 'Foggy';
+    if (code <= 57) return 'Drizzle';
+    if (code <= 67) return 'Rainy';
+    if (code <= 77) return 'Snowy';
+    if (code <= 82) return 'Rain Showers';
+    if (code <= 86) return 'Snow Showers';
+    if (code <= 99) return 'Thunderstorm';
+    return 'Unknown';
   };
 
   return (
@@ -2541,6 +3138,95 @@ const SpellingTool = memo(() => {
   );
 });
 
+const IslamicQuizTool = memo(() => {
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [score, setScore] = useState(0);
+  const [showResult, setShowResult] = useState(false);
+
+  const questions = [
+    {
+      question: "Siapa nabi pertama dalam Islam?",
+      options: ["Nabi Ibrahim AS", "Nabi Adam AS", "Nabi Muhammad SAW", "Nabi Nuh AS"],
+      answer: 1
+    },
+    {
+      question: "Berapa jumlah rakaat shalat Subuh?",
+      options: ["2", "3", "4", "1"],
+      answer: 0
+    },
+    {
+      question: "Apa kitab suci umat Islam?",
+      options: ["Injil", "Taurat", "Zabur", "Al-Quran"],
+      answer: 3
+    },
+    {
+      question: "Di kota mana Nabi Muhammad SAW lahir?",
+      options: ["Madinah", "Makkah", "Riyadh", "Jeddah"],
+      answer: 1
+    }
+  ];
+
+  const handleAnswer = (index: number) => {
+    if (index === questions[currentQuestion].answer) {
+      setScore(score + 1);
+    }
+    if (currentQuestion + 1 < questions.length) {
+      setCurrentQuestion(currentQuestion + 1);
+    } else {
+      setShowResult(true);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-4 mb-2">
+        <div className="p-3 bg-emerald-500/20 rounded-2xl">
+          <HelpCircle className="w-6 h-6 text-emerald-400" />
+        </div>
+        <div>
+          <h3 className="text-xl font-serif font-bold text-white">Islamic Quiz</h3>
+          <p className="text-zinc-500 text-xs font-mono">Test your knowledge of Islam</p>
+        </div>
+      </div>
+
+      {showResult ? (
+        <div className="glass p-8 rounded-3xl border border-white/5 text-center space-y-4">
+          <div className="text-4xl font-bold text-emerald-400">{score} / {questions.length}</div>
+          <p className="text-zinc-400">Quiz Completed! Great job.</p>
+          <button 
+            onClick={() => {
+              setCurrentQuestion(0);
+              setScore(0);
+              setShowResult(false);
+            }}
+            className="w-full py-4 bg-emerald-500 text-black rounded-2xl font-bold uppercase tracking-widest text-xs"
+          >
+            Restart Quiz
+          </button>
+        </div>
+      ) : (
+        <div className="glass p-6 rounded-3xl border border-white/5 space-y-6">
+          <div className="space-y-2">
+            <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Question {currentQuestion + 1} of {questions.length}</div>
+            <h4 className="text-lg text-white font-medium">{questions[currentQuestion].question}</h4>
+          </div>
+          <div className="grid gap-3">
+            {questions[currentQuestion].options.map((option, i) => (
+              <button 
+                key={i}
+                onClick={() => handleAnswer(i)}
+                className="w-full p-4 bg-white/5 border border-white/5 rounded-2xl text-left text-sm text-zinc-300 hover:bg-emerald-500/10 hover:border-emerald-500/30 transition-all"
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+});
+
 const KidsQuizTool = memo(() => {
   const questions = [
     { q: 'What color is the sky?', a: ['Blue', 'Red', 'Green'], correct: 0 },
@@ -3038,68 +3724,76 @@ const HDVideoPlayerTool = () => {
   );
 };
 
-const IPMaskingTool = () => {
-  const { user, updateUser } = useAuth();
-  const [masking, setMasking] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [node, setNode] = useState('Global Proxy Node');
+const IPTrackerTool = () => {
+  const [ip, setIp] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<any>(null);
 
-  const nodes = ['Frankfurt, DE', 'Singapore, SG', 'New York, US', 'Tokyo, JP', 'London, UK', 'Amsterdam, NL'];
-
-  const startMasking = () => {
-    setMasking(true);
-    setProgress(0);
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setMasking(false);
-          const fakeIp = `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
-          updateUser({ ip: fakeIp });
-          return 100;
-        }
-        setNode(nodes[Math.floor(Math.random() * nodes.length)]);
-        return prev + 2;
-      });
-    }, 50);
+  const trackIP = async () => {
+    setLoading(true);
+    try {
+      const target = ip || ''; // Empty means current IP
+      const res = await axios.get(`https://ipapi.co/${target}/json/`);
+      setData(res.data);
+    } catch (err) {
+      console.error(err);
+      alert('Error tracking IP. Rate limit might be reached.');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    trackIP();
+  }, []);
 
   return (
     <div className="space-y-6">
-      <div className="p-8 bg-purple-500/10 rounded-[2.5rem] border border-purple-500/20 text-center space-y-4">
-        <div className="w-20 h-20 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto border border-purple-500/30 shadow-[0_0_20px_rgba(168,85,247,0.3)]">
-          <Shield className="w-10 h-10 text-purple-500" />
-        </div>
-        <div className="space-y-1">
-          <h3 className="font-bold text-lg">IP Masking & Cloning</h3>
-          <p className="text-[10px] text-zinc-500 uppercase tracking-widest">DDoS Protection & Anonymity</p>
-        </div>
-      </div>
-
-      <div className="glass p-5 rounded-2xl border border-white/5 space-y-4">
-        <div className="flex justify-between items-center">
-          <span className="text-xs text-zinc-400">Current Identity:</span>
-          <span className="text-xs font-mono font-bold text-purple-400">{user?.ip || 'Scanning...'}</span>
-        </div>
-        {masking && (
-          <div className="space-y-2">
-            <div className="flex justify-between text-[8px] font-bold text-purple-500 uppercase tracking-widest">
-              <span>Cloning Node: {node}</span>
-              <span>{progress}%</span>
-            </div>
-            <div className="h-1 bg-zinc-900 rounded-full overflow-hidden">
-              <motion.div initial={{ width: 0 }} animate={{ width: `${progress}%` }} className="h-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.5)]" />
-            </div>
-          </div>
-        )}
-        <button 
-          onClick={startMasking}
-          disabled={masking}
-          className="w-full py-4 bg-purple-500 text-white rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg shadow-purple-500/20 disabled:opacity-50 active:scale-95 transition-all"
-        >
-          {masking ? 'Masking in Progress...' : 'Initialize IP Masking'}
+      <div className="flex gap-2">
+        <input 
+          value={ip}
+          onChange={(e) => setIp(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && trackIP()}
+          placeholder="Enter IP address (leave blank for yours)..."
+          className="flex-1 bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500/50"
+        />
+        <button onClick={trackIP} className="p-3 bg-purple-500 rounded-xl">
+          {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
         </button>
       </div>
+
+      {data && (
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-4"
+        >
+          <div className="glass p-6 rounded-3xl border border-purple-500/20 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-bold text-white">{data.ip}</h3>
+              <span className="text-[10px] font-mono text-purple-400 uppercase tracking-widest">{data.org}</span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {[
+                { label: 'City', val: data.city },
+                { label: 'Region', val: data.region },
+                { label: 'Country', val: data.country_name },
+                { label: 'Postal', val: data.postal },
+                { label: 'Lat/Long', val: `${data.latitude}, ${data.longitude}` },
+                { label: 'ASN', val: data.asn },
+                { label: 'Currency', val: data.currency },
+                { label: 'Timezone', val: data.timezone },
+                { label: 'Calling Code', val: `+${data.country_calling_code}` },
+              ].map((item, i) => (
+                <div key={i} className="bg-zinc-950/50 p-3 rounded-xl border border-white/5">
+                  <div className="text-[8px] text-zinc-500 uppercase font-bold mb-1">{item.label}</div>
+                  <div className="text-xs font-mono text-zinc-200">{item.val || 'N/A'}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 };

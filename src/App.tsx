@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider } from './context/ConfigContext';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider, useAuth, getCyberData } from './context/AuthContext';
 import { Layout } from './components/Layout';
 import { motion, AnimatePresence } from 'motion/react';
-import { Shield, ChevronRight, X } from 'lucide-react';
+import { Shield, ChevronRight, X, RefreshCw, Terminal, Lock, ShieldAlert } from 'lucide-react';
 
 // Pages
 import Dashboard from './pages/Dashboard';
@@ -16,24 +16,56 @@ import Others from './pages/Others';
 import Settings from './pages/Settings';
 import { Login } from './pages/Login';
 import { AdminPanel } from './pages/AdminPanel';
+import { initSecuritySystems } from './services/CyberSecurityService';
 
 const AppContent = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [showWelcome, setShowWelcome] = useState(false);
+  const [isBanned, setIsBanned] = useState(false);
+  const isMaintenance = localStorage.getItem('nano_maintenance') === 'true';
 
   useEffect(() => {
+    initSecuritySystems();
+    
+    const checkSecurity = async () => {
+      const cyber = await getCyberData();
+      const bannedIps = JSON.parse(localStorage.getItem('nano_banned_ips') || '[]');
+      if (bannedIps.includes(cyber.ip) && user?.role !== 'owner') {
+        setIsBanned(true);
+        logout();
+      }
+    };
+    checkSecurity();
+
     if (user?.isLoggedIn) {
       const hasSeen = localStorage.getItem('nano_welcome_seen');
       if (!hasSeen) {
         setShowWelcome(true);
       }
     }
-  }, [user]);
+  }, [user, logout]);
 
   const closeWelcome = () => {
     setShowWelcome(false);
     localStorage.setItem('nano_welcome_seen', 'true');
   };
+
+  if (isBanned) {
+    return (
+      <div className="fixed inset-0 z-[9999] bg-zinc-950 flex flex-col items-center justify-center p-6 text-center space-y-8">
+        <div className="relative">
+          <div className="absolute inset-0 bg-red-500/20 blur-3xl rounded-full animate-pulse" />
+          <ShieldAlert className="w-24 h-24 text-red-500 relative z-10" />
+        </div>
+        <div className="space-y-4 max-w-md relative z-10">
+          <h1 className="text-4xl font-serif font-bold tracking-tighter text-white uppercase">Access Denied</h1>
+          <p className="text-zinc-500 text-sm font-mono leading-relaxed">
+            Your IP address has been blacklisted by the Nano Suite Security Core [VCX-5] due to suspicious activity.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!user?.isLoggedIn) {
     return <Login />;
@@ -41,8 +73,38 @@ const AppContent = () => {
 
   return (
     <BrowserRouter>
-      <AnimatePresence>
-        {showWelcome && (
+      {isMaintenance && user?.role !== 'owner' ? (
+        <div className="fixed inset-0 z-[9999] bg-zinc-950 flex flex-col items-center justify-center p-6 text-center space-y-8">
+          <div className="relative">
+            <div className="absolute inset-0 bg-emerald-500/20 blur-3xl rounded-full animate-pulse" />
+            <RefreshCw className="w-24 h-24 text-emerald-500 animate-spin relative z-10" />
+          </div>
+          <div className="space-y-4 max-w-md relative z-10">
+            <h1 className="text-4xl font-serif font-bold tracking-tighter text-white">SYSTEM MAINTENANCE</h1>
+            <p className="text-zinc-500 text-sm font-mono leading-relaxed">
+              Protocol [UP-1] is currently upgrading the Nano Suite core. 
+              Security layers are being reinforced and system modules are being optimized.
+            </p>
+            <div className="p-4 bg-zinc-900/50 border border-white/5 rounded-2xl text-left space-y-2 font-mono text-[10px]">
+              <div className="flex items-center gap-2 text-emerald-400">
+                <Terminal className="w-3 h-3" /> STATUS_LOG:
+              </div>
+              <div className="text-zinc-400">
+                &gt; Initializing X-ZERO Antivirus... [OK]<br/>
+                &gt; Patching Kernel Vulnerabilities... [OK]<br/>
+                &gt; Upgrading UI Engine... [IN_PROGRESS]<br/>
+                &gt; Protocol UP-1: ACTIVE
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-700 uppercase tracking-[0.3em]">
+            <Lock className="w-3 h-3" /> Secure Connection Active
+          </div>
+        </div>
+      ) : (
+        <>
+          <AnimatePresence>
+            {showWelcome && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -106,21 +168,23 @@ const AppContent = () => {
             </motion.div>
           </motion.div>
         )}
-      </AnimatePresence>
-
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/tools" element={<Tools />} />
-          <Route path="/live" element={<LiveData />} />
-          <Route path="/chat" element={<AIChat />} />
-          <Route path="/special" element={<Special />} />
-          <Route path="/others" element={<Others />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/admin" element={<AdminPanel />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Route>
-      </Routes>
+          </AnimatePresence>
+    
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/tools" element={<Tools />} />
+              <Route path="/live" element={<LiveData />} />
+              <Route path="/chat" element={<AIChat />} />
+              <Route path="/special" element={<Special />} />
+              <Route path="/others" element={<Others />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/admin" element={<AdminPanel />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Route>
+          </Routes>
+        </>
+      )}
     </BrowserRouter>
   );
 };

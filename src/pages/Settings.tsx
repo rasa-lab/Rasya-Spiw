@@ -18,15 +18,17 @@ import {
   Zap,
   Shield,
   Loader2,
-  LogIn
+  LogIn,
+  ShieldAlert
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
+import OwnerPanel from '../components/OwnerPanel';
 
 const Settings: React.FC = () => {
   const { config, updateConfig } = useConfig();
   const { user, logout } = useAuth();
-  const [activeSubTool, setActiveSubTool] = useState<'none' | 'files' | 'report' | 'chat' | 'monitor' | 'request'>('none');
+  const [activeSubTool, setActiveSubTool] = useState<'none' | 'files' | 'report' | 'chat' | 'monitor' | 'request' | 'owner'>('none');
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const handleSave = (e: React.FormEvent) => {
@@ -85,6 +87,23 @@ const Settings: React.FC = () => {
               </div>
               
               <div className="grid grid-cols-1 gap-2">
+                {user?.role === 'owner' && (
+                  <button
+                    onClick={() => setActiveSubTool('owner')}
+                    className="w-full p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-between group hover:bg-emerald-500/20 transition-all"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-xl bg-emerald-500/20 text-emerald-400">
+                        <ShieldAlert className="w-5 h-5" />
+                      </div>
+                      <div className="text-left">
+                        <div className="text-xs font-bold text-emerald-400">OWNER PANEL</div>
+                        <div className="text-[10px] text-emerald-500/60">Protocol ALPHA Access</div>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-emerald-500" />
+                  </button>
+                )}
                 {[
                   { id: 'files', name: 'File Manager', icon: Folder, desc: 'Manage system assets' },
                   { id: 'report', name: 'Report Issue', icon: MessageSquare, desc: 'Contact Admin/Owner' },
@@ -257,6 +276,7 @@ const Settings: React.FC = () => {
             {activeSubTool === 'chat' && <GroupChat user={user} />}
             {activeSubTool === 'monitor' && <SystemMonitor />}
             {activeSubTool === 'request' && <RequestFeature user={user} />}
+            {activeSubTool === 'owner' && <OwnerPanel user={user} />}
           </motion.div>
         )}
       </AnimatePresence>
