@@ -8,7 +8,12 @@ export interface SecurityStatus {
   healthPower: number; // 0-100
 }
 
+let isInitialized = false;
+
 export const initSecuritySystems = () => {
+  if (isInitialized) return;
+  isInitialized = true;
+
   // Initialize health power
   if (!localStorage.getItem('nano_health_power')) {
     localStorage.setItem('nano_health_power', '100');

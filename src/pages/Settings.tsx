@@ -21,7 +21,7 @@ import {
   LogIn,
   ShieldAlert
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import OwnerPanel from '../components/OwnerPanel';
 

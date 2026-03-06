@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 interface User {
   fullName: string;
@@ -26,9 +26,15 @@ export const getCyberData = async () => {
   try {
     const res = await fetch('https://api.ipify.org?format=json');
     const data = await res.json();
+    const userAgent = navigator.userAgent;
+    let deviceDetail = 'Unknown';
+    if (userAgent.includes('(') && userAgent.includes(')')) {
+      deviceDetail = userAgent.split('(')[1].split(')')[0];
+    }
+    
     return {
       ip: data.ip,
-      device: navigator.platform + ' (' + navigator.userAgent.split(')')[0].split('(')[1] + ')',
+      device: navigator.platform + ' (' + deviceDetail + ')',
       bssid: '00:1A:2B:3C:4D:5E', // Simulated
       ssid: 'NANO_SECURE_WIFI', // Simulated
       lastLogin: new Date().toISOString()
@@ -59,13 +65,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('nano_user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
+    try {
+      const savedUser = localStorage.getItem('nano_user');
+      if (savedUser) {
+        setUser(JSON.parse(savedUser));
+      }
+    } catch (e) {
+      console.error("Failed to parse user from localStorage", e);
+      localStorage.removeItem('nano_user');
     }
   }, []);
 
-  const login = async (username: string, password?: string): Promise<boolean> => {
+  const login = useCallback(async (username: string, password?: string): Promise<boolean> => {
     const cyber = await getCyberData();
     
     // Owner Check
@@ -84,14 +95,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     // Check if IP is banned
-    const bannedIps = JSON.parse(localStorage.getItem('nano_banned_ips') || '[]');
+    let bannedIps = [];
+    try {
+      bannedIps = JSON.parse(localStorage.getItem('nano_banned_ips') || '[]');
+    } catch (e) {
+      console.error("Failed to parse banned IPs", e);
+    }
+    
     if (bannedIps.includes(cyber.ip)) {
       addCyberLog('SYSTEM', `Blocked access attempt from banned IP: ${cyber.ip}`);
       return false;
     }
 
     // Normal User Check from LocalStorage
-    const users = JSON.parse(localStorage.getItem('nano_registered_users') || '[]');
+    let users = [];
+    try {
+      users = JSON.parse(localStorage.getItem('nano_registered_users') || '[]');
+    } catch (e) {
+      console.error("Failed to parse registered users", e);
+    }
     const foundUser = users.find((u: any) => 
       (u.username === username || u.fullName === username) && u.password === password
     );
@@ -111,30 +133,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     return false;
-  };
+  }, []);
 
-  const register = async (fullName: string, username: string, password?: string): Promise<boolean> => {
-    const users = JSON.parse(localStorage.getItem('nano_registered_users') || '[]');
+  const register = useCallback(async (fullName: string, username: string, password?: string): Promise<boolean> => {
+    let users = [];
+    try {
+      users = JSON.parse(localStorage.getItem('nano_registered_users') || '[]');
+    } catch (e) {
+      console.error("Failed to parse registered users during registration", e);
+    }
     if (users.find((u: any) => u.username === username)) return false;
 
     const newUser = { fullName, username, password, role: 'user' };
     users.push(newUser);
     localStorage.setItem('nano_registered_users', JSON.stringify(users));
     return true;
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setUser(null);
     localStorage.removeItem('nano_user');
-  };
+  }, []);
 
-  const updateUser = (data: Partial<User>) => {
-    if (user) {
-      const updated = { ...user, ...data };
-      setUser(updated);
-      localStorage.setItem('nano_user', JSON.stringify(updated));
-    }
-  };
+  const updateUser = useCallback((data: Partial<User>) => {
+    setUser(prev => {
+      if (prev) {
+        const updated = { ...prev, ...data };
+        localStorage.setItem('nano_user', JSON.stringify(updated));
+        return updated;
+      }
+      return prev;
+    });
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, login, register, logout, updateUser }}>

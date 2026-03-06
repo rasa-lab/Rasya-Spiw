@@ -20,8 +20,7 @@ const ConfigContext = createContext<ConfigContextType | undefined>(undefined);
 
 export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [config, setConfig] = useState<Config>(() => {
-    const saved = localStorage.getItem('testing_system_config');
-    return saved ? JSON.parse(saved) : {
+    const defaultConfig: Config = {
       openRouterKey: '',
       supabaseUrl: '',
       supabaseKey: '',
@@ -31,6 +30,14 @@ export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       language: 'id',
       theme: 'dark',
     };
+
+    try {
+      const saved = localStorage.getItem('testing_system_config');
+      return saved ? { ...defaultConfig, ...JSON.parse(saved) } : defaultConfig;
+    } catch (e) {
+      console.error("Failed to parse config", e);
+      return defaultConfig;
+    }
   });
 
   useEffect(() => {

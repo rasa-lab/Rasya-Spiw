@@ -24,7 +24,7 @@ import {
   Zap,
   Server
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { addCyberLog } from '../context/AuthContext';
 import { generateAIContent } from '../services/aiService';
 

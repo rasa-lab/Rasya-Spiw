@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider } from './context/ConfigContext';
 import { AuthProvider, useAuth, getCyberData } from './context/AuthContext';
 import { Layout } from './components/Layout';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, ChevronRight, X, RefreshCw, Terminal, Lock, ShieldAlert } from 'lucide-react';
 
 // Pages
@@ -22,19 +22,40 @@ const AppContent = () => {
   const { user, logout } = useAuth();
   const [showWelcome, setShowWelcome] = useState(false);
   const [isBanned, setIsBanned] = useState(false);
-  const isMaintenance = localStorage.getItem('nano_maintenance') === 'true';
+  const [isLoading, setIsLoading] = useState(true);
+  const [isMaintenance, setIsMaintenance] = useState(false);
 
   useEffect(() => {
+    try {
+      setIsMaintenance(localStorage.getItem('nano_maintenance') === 'true');
+    } catch (e) {
+      console.error("Failed to check maintenance mode", e);
+    }
     initSecuritySystems();
-    
+  }, []);
+
+  useEffect(() => {
     const checkSecurity = async () => {
-      const cyber = await getCyberData();
-      const bannedIps = JSON.parse(localStorage.getItem('nano_banned_ips') || '[]');
-      if (bannedIps.includes(cyber.ip) && user?.role !== 'owner') {
-        setIsBanned(true);
-        logout();
+      try {
+        const cyber = await getCyberData();
+        let bannedIps = [];
+        try {
+          bannedIps = JSON.parse(localStorage.getItem('nano_banned_ips') || '[]');
+        } catch (e) {
+          console.error("Failed to parse banned IPs in App", e);
+        }
+
+        if (bannedIps.includes(cyber.ip) && user?.role !== 'owner') {
+          setIsBanned(true);
+          logout();
+        }
+      } catch (err) {
+        console.error("Security check failed", err);
+      } finally {
+        setIsLoading(false);
       }
     };
+    
     checkSecurity();
 
     if (user?.isLoggedIn) {
@@ -43,12 +64,26 @@ const AppContent = () => {
         setShowWelcome(true);
       }
     }
-  }, [user, logout]);
+  }, [user?.isLoggedIn, user?.role, logout]);
 
   const closeWelcome = () => {
     setShowWelcome(false);
     localStorage.setItem('nano_welcome_seen', 'true');
   };
+
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 bg-zinc-950 flex flex-col items-center justify-center space-y-4">
+        <div className="relative">
+          <div className="absolute inset-0 bg-emerald-500/20 blur-2xl rounded-full animate-pulse" />
+          <Shield className="w-12 h-12 text-emerald-500 animate-pulse relative z-10" />
+        </div>
+        <div className="text-[10px] font-mono text-emerald-500/50 uppercase tracking-[0.3em] animate-pulse">
+          Initializing Security Core...
+        </div>
+      </div>
+    );
+  }
 
   if (isBanned) {
     return (
@@ -72,7 +107,7 @@ const AppContent = () => {
   }
 
   return (
-    <BrowserRouter>
+    <>
       {isMaintenance && user?.role !== 'owner' ? (
         <div className="fixed inset-0 z-[9999] bg-zinc-950 flex flex-col items-center justify-center p-6 text-center space-y-8">
           <div className="relative">
@@ -142,7 +177,7 @@ const AppContent = () => {
                 <div className="space-y-3">
                   <h2 className="text-4xl font-serif font-bold tracking-tight text-white">Nano Suite</h2>
                   <p className="text-zinc-400 text-sm leading-relaxed px-4">
-                    Welcome back, {user.fullName}. System initialized.
+                    Welcome back, {user?.fullName}. System initialized.
                   </p>
                 </div>
 
@@ -185,7 +220,7 @@ const AppContent = () => {
           </Routes>
         </>
       )}
-    </BrowserRouter>
+    </>
   );
 };
 
@@ -193,7 +228,9 @@ export default function App() {
   return (
     <ConfigProvider>
       <AuthProvider>
-        <AppContent />
+        <BrowserRouter>
+          <AppContent />
+        </BrowserRouter>
       </AuthProvider>
     </ConfigProvider>
   );

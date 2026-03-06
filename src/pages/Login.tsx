@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Lock, User, ChevronRight, Loader2, UserPlus, LogIn } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -25,7 +25,7 @@ export const Login: React.FC = () => {
       const found = users.find((u: any) => 
         (u.username === fullName || u.fullName === fullName) && u.password === password
       );
-      const isOwner = fullName === 'Rasya_444_111' && password === 'RASYA_111_512';
+      const isOwner = fullName === 'Rasya_121_333' && password === 'Rasya_nano_152';
       
       if (!found && !isOwner) {
         alert('Invalid credentials. Access denied.');
