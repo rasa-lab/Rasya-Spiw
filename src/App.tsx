@@ -4,13 +4,16 @@ import { ConfigProvider } from './context/ConfigContext';
 import { AuthProvider, useAuth, getCyberData } from './context/AuthContext';
 import { Layout } from './components/Layout';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, ChevronRight, X, RefreshCw, Terminal, Lock, ShieldAlert } from 'lucide-react';
+import { Shield, ChevronRight, X, RefreshCw, Terminal, Lock, ShieldAlert, MessageSquare } from 'lucide-react';
 
 // Pages
 import Dashboard from './pages/Dashboard';
 import Tools from './pages/Tools';
 import LiveData from './pages/LiveData';
 import AIChat from './pages/AIChat';
+import GroupChat from './pages/GroupChat';
+import FileManager from './pages/FileManager';
+import CodePreview from './pages/CodePreview';
 import Special from './pages/Special';
 import Others from './pages/Others';
 import Settings from './pages/Settings';
@@ -24,10 +27,16 @@ const AppContent = () => {
   const [isBanned, setIsBanned] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isMaintenance, setIsMaintenance] = useState(false);
+  const [maintenanceText, setMaintenanceText] = useState('Terimakasih telah menggunakan layanan kami. Kami sedang melakukan peningkatan sistem untuk memberikan pengalaman terbaik bagi Anda.');
+  const [maintenanceWa, setMaintenanceWa] = useState('6281234567890');
 
   useEffect(() => {
     try {
       setIsMaintenance(localStorage.getItem('nano_maintenance') === 'true');
+      const text = localStorage.getItem('nano_maintenance_text');
+      if (text) setMaintenanceText(text);
+      const wa = localStorage.getItem('nano_maintenance_wa');
+      if (wa) setMaintenanceWa(wa);
     } catch (e) {
       console.error("Failed to check maintenance mode", e);
     }
@@ -106,40 +115,91 @@ const AppContent = () => {
     return <Login />;
   }
 
-  return (
-    <>
-      {isMaintenance && user?.role !== 'owner' ? (
-        <div className="fixed inset-0 z-[9999] bg-zinc-950 flex flex-col items-center justify-center p-6 text-center space-y-8">
-          <div className="relative">
-            <div className="absolute inset-0 bg-emerald-500/20 blur-3xl rounded-full animate-pulse" />
-            <RefreshCw className="w-24 h-24 text-emerald-500 animate-spin relative z-10" />
-          </div>
-          <div className="space-y-4 max-w-md relative z-10">
-            <h1 className="text-4xl font-serif font-bold tracking-tighter text-white">SYSTEM MAINTENANCE</h1>
-            <p className="text-zinc-500 text-sm font-mono leading-relaxed">
-              Protocol [UP-1] is currently upgrading the Nano Suite core. 
-              Security layers are being reinforced and system modules are being optimized.
-            </p>
-            <div className="p-4 bg-zinc-900/50 border border-white/5 rounded-2xl text-left space-y-2 font-mono text-[10px]">
-              <div className="flex items-center gap-2 text-emerald-400">
-                <Terminal className="w-3 h-3" /> STATUS_LOG:
-              </div>
-              <div className="text-zinc-400">
-                &gt; Initializing X-ZERO Antivirus... [OK]<br/>
-                &gt; Patching Kernel Vulnerabilities... [OK]<br/>
-                &gt; Upgrading UI Engine... [IN_PROGRESS]<br/>
-                &gt; Protocol UP-1: ACTIVE
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-700 uppercase tracking-[0.3em]">
-            <Lock className="w-3 h-3" /> Secure Connection Active
+  if (isMaintenance && user?.role !== 'owner') {
+    return (
+      <div className="fixed inset-0 z-[9999] bg-zinc-950 flex flex-col items-center justify-center p-6 text-center space-y-8 overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-emerald-500/10 via-transparent to-transparent animate-pulse" />
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/5 blur-[100px] rounded-full animate-blob" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/5 blur-[100px] rounded-full animate-blob animation-delay-2000" />
+        </div>
+        
+        <motion.div 
+          animate={{ 
+            rotate: 360,
+            scale: [1, 1.1, 1]
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          className="absolute opacity-[0.03]"
+        >
+          <Terminal className="w-[500px] h-[500px] text-emerald-500" />
+        </motion.div>
+
+        <div className="relative">
+          <div className="absolute inset-0 bg-emerald-500/20 blur-3xl rounded-full animate-pulse" />
+          <div className="relative p-8 glass rounded-[3rem] border border-emerald-500/30">
+            <RefreshCw className="w-16 h-16 text-emerald-500 animate-spin" />
           </div>
         </div>
-      ) : (
-        <>
-          <AnimatePresence>
-            {showWelcome && (
+
+        <div className="space-y-6 max-w-md relative z-10">
+          <div className="space-y-2">
+            <h1 className="text-5xl font-serif font-black tracking-tighter text-white uppercase italic">
+              Under <span className="text-emerald-500">Maintenance</span>
+            </h1>
+            <div className="flex items-center justify-center gap-2">
+              <div className="h-px w-8 bg-emerald-500/50" />
+              <span className="text-[10px] font-mono text-emerald-500 uppercase tracking-[0.3em]">System Upgrade in Progress</span>
+              <div className="h-px w-8 bg-emerald-500/50" />
+            </div>
+          </div>
+
+          <p className="text-zinc-400 text-sm font-mono leading-relaxed bg-white/5 p-4 rounded-2xl border border-white/5">
+            "{maintenanceText}"
+          </p>
+          
+          <div className="grid grid-cols-2 gap-3 text-left">
+            <div className="p-4 glass rounded-2xl border border-white/5">
+              <div className="text-[8px] text-zinc-500 uppercase mb-1">Status</div>
+              <div className="text-[10px] font-bold text-emerald-400 flex items-center gap-2">
+                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
+                UPGRADING CORE
+              </div>
+            </div>
+            <div className="p-4 glass rounded-2xl border border-white/5">
+              <div className="text-[8px] text-zinc-500 uppercase mb-1">ETA</div>
+              <div className="text-[10px] font-bold text-blue-400">~ 2 HOURS</div>
+            </div>
+          </div>
+
+          <div className="pt-4">
+            <motion.button 
+              whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(16,185,129,0.4)" }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => window.open(`https://wa.me/${maintenanceWa}`, '_blank')}
+              className="w-full py-5 bg-emerald-500 text-black rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-2xl shadow-emerald-500/20 flex items-center justify-center gap-3"
+            >
+              <MessageSquare className="w-5 h-5" />
+              Hubungi Owner
+            </motion.button>
+          </div>
+        </div>
+
+        <div className="absolute bottom-8 flex flex-col items-center gap-2">
+          <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-700 uppercase tracking-[0.3em]">
+            <Lock className="w-3 h-3" /> Nano Suite Security Core v2.5
+          </div>
+          <div className="text-[8px] text-zinc-800 font-mono">ENCRYPTED SESSION: {Math.random().toString(36).substring(7).toUpperCase()}</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <AnimatePresence>
+        {showWelcome && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -203,23 +263,24 @@ const AppContent = () => {
             </motion.div>
           </motion.div>
         )}
-          </AnimatePresence>
-    
-          <Routes>
-            <Route element={<Layout />}>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/tools" element={<Tools />} />
-              <Route path="/live" element={<LiveData />} />
-              <Route path="/chat" element={<AIChat />} />
-              <Route path="/special" element={<Special />} />
-              <Route path="/others" element={<Others />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/admin" element={<AdminPanel />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Route>
-          </Routes>
-        </>
-      )}
+      </AnimatePresence>
+
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/tools" element={<Tools />} />
+          <Route path="/live" element={<LiveData />} />
+          <Route path="/group" element={<GroupChat />} />
+          <Route path="/files" element={<FileManager />} />
+          <Route path="/preview" element={<CodePreview />} />
+          <Route path="/chat" element={<AIChat />} />
+          <Route path="/special" element={<Special />} />
+          <Route path="/others" element={<Others />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/admin" element={<AdminPanel />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
     </>
   );
 };

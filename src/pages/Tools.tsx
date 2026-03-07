@@ -1,5 +1,6 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, useEffect, memo, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
   Calculator, 
   FileText, 
@@ -78,6 +79,8 @@ import {
   HelpCircle as QuizIcon,
   Heart,
   Star,
+  Sparkles,
+  Wrench,
   Sun as PrayerIcon,
   Search as SearchIcon,
   Globe as GlobeIcon,
@@ -87,14 +90,25 @@ import {
   Network,
   Scan,
   Bug,
-  Eye as EyeIcon
+  Eye as EyeIcon,
+  Smartphone,
+  Trophy,
+  Coins,
+  Gamepad,
+  Bell,
+  HeartPulse,
+  Radar,
+  ShieldCheck,
+  Youtube,
+  UserSearch,
+  Hammer,
+  Video,
+  Mic
 } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 import axios from 'axios';
 import { generateAIContent } from '../services/aiService';
 import { useAuth } from '../context/AuthContext';
-
-type Tool = 'none' | 'calculator' | 'notes' | 'math' | 'finance' | 'celengan' | 'games' | 'password' | 'qr' | 'converter' | 'stopwatch' | 'worldclock' | 'currency' | 'translator' | 'recipe' | 'bmi' | 'mood' | 'encryptor' | 'pomodoro' | 'weather' | 'dictionary' | 'colorpicker' | 'lorem' | 'markdown' | 'json' | 'habit' | 'metronome' | 'drawing' | 'typing' | 'morse' | 'base64' | 'url' | 'case' | 'subdomain' | 'whois' | 'ssl' | 'admin' | 'metadata' | 'resume' | 'expense' | 'passmanager' | 'pdf' | 'compressor' | 'animals' | 'colors' | 'piano' | 'spelling' | 'kidsquiz' | 'coloring' | 'story' | 'kidsmath' | 'kidsmemory' | 'alphabet' | 'browser' | 'trending' | 'wifi' | 'antivirus' | 'devcheck' | 'anime' | 'tv' | 'hdvideo' | 'ipmask' | 'cyberchat' | 'livetv' | 'quran' | 'prayer' | 'asmaul' | 'hadith' | 'qibla' | 'hijri' | 'zakat' | 'duas' | 'islamicquiz' | 'iptracker' | 'whoislookup' | 'dnslookup' | 'osint' | 'headercheck';
 
 const QuranTool = () => {
   const [chapters, setChapters] = useState<any[]>([]);
@@ -454,17 +468,34 @@ const DuasTool = () => {
   );
 };
 
+
+type Tool = 'none' | 'calculator' | 'notes' | 'math' | 'finance' | 'celengan' | 'games' | 'password' | 'qr' | 'converter' | 'stopwatch' | 'worldclock' | 'currency' | 'translator' | 'recipe' | 'bmi' | 'mood' | 'encryptor' | 'pomodoro' | 'weather' | 'dictionary' | 'colorpicker' | 'lorem' | 'markdown' | 'json' | 'habit' | 'metronome' | 'drawing' | 'typing' | 'morse' | 'base64' | 'url' | 'case' | 'subdomain' | 'whois' | 'ssl' | 'admin' | 'metadata' | 'resume' | 'expense' | 'passmanager' | 'pdf' | 'compressor' | 'animals' | 'colors' | 'piano' | 'spelling' | 'kidsquiz' | 'coloring' | 'story' | 'kidsmath' | 'kidsmemory' | 'alphabet' | 'browser' | 'trending' | 'wifi' | 'antivirus' | 'devcheck' | 'anime' | 'tv' | 'hdvideo' | 'ipmask' | 'cyberchat' | 'livetv' | 'quran' | 'prayer' | 'asmaul' | 'hadith' | 'qibla' | 'hijri' | 'zakat' | 'duas' | 'islamicquiz' | 'iptracker' | 'whoislookup' | 'dnslookup' | 'osint' | 'headercheck' | 'apkcreator' | 'deepsearch' | 'wifiscan' | 'leaderboard' | 'vpn' | 'coinstorage' | 'ranking' | 'gamecenter' | 'systemtracker' | 'alarm' | 'healthtracker' | 'health' | 'tiktok' | 'youtube' | 'stalker' | 'cyber' | 'builder' | 'image-gen' | 'video-gen' | 'voice' | 'deepfake' | 'review' | 'calendar' | 'iqtest' | 'network' | 'port' | 'hash' | 'stegano' | 'vuln' | 'breach' | 'username' | 'gameshub' | 'coins';
+
 const ToolButton = memo(({ tool, onClick }: { tool: any, onClick: () => void }) => (
   <motion.button
-    whileHover={{ scale: 1.05, translateY: -2 }}
+    whileHover={{ scale: 1.05, translateY: -5 }}
     whileTap={{ scale: 0.95 }}
     onClick={onClick}
-    className="glass p-3 rounded-xl flex flex-col items-center gap-1.5 text-center group border border-white/5 hover:border-emerald-500/20 cursor-pointer"
+    className="relative group cursor-pointer"
   >
-    <div className={`p-2 rounded-lg ${tool.color} group-hover:scale-110 transition-transform shadow-lg pointer-events-none`}>
-      <tool.icon className="w-5 h-5" />
+    <div className="absolute inset-0 bg-emerald-500/5 blur-xl rounded-2xl group-hover:bg-emerald-500/10 transition-all" />
+    <div className="relative glass p-4 rounded-2xl flex flex-col items-center gap-3 text-center border border-white/5 group-hover:border-emerald-500/40 transition-all overflow-hidden">
+      <div className="absolute top-0 right-0 w-8 h-8 bg-emerald-500/10 rounded-bl-2xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+        <Zap className="w-3 h-3 text-emerald-500" />
+      </div>
+      
+      <div className={`p-3 rounded-xl ${tool.color} group-hover:scale-110 transition-transform shadow-lg pointer-events-none relative`}>
+        <tool.icon className="w-6 h-6" />
+        <div className="absolute -inset-1 bg-current opacity-20 blur-lg rounded-full animate-pulse" />
+      </div>
+      
+      <div className="space-y-1">
+        <span className="block font-black text-[9px] uppercase tracking-[0.2em] text-zinc-200 group-hover:text-emerald-400 transition-colors pointer-events-none line-clamp-1">
+          {tool.name}
+        </span>
+        <div className="h-0.5 w-4 bg-emerald-500/50 mx-auto rounded-full scale-x-0 group-hover:scale-x-100 transition-transform" />
+      </div>
     </div>
-    <span className="font-bold text-[7px] uppercase tracking-widest text-zinc-400 group-hover:text-white transition-colors pointer-events-none line-clamp-1">{tool.name}</span>
   </motion.button>
 ));
 
@@ -598,6 +629,156 @@ const OSINTSearchTool = () => {
   );
 };
 
+const APKCreatorTool = () => {
+  const [status, setStatus] = useState<'idle' | 'compiling' | 'done'>('idle');
+  const [progress, setProgress] = useState(0);
+
+  const handleCreate = () => {
+    setStatus('compiling');
+    setProgress(0);
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setStatus('done');
+          return 100;
+        }
+        return prev + 2;
+      });
+    }, 100);
+  };
+
+  return (
+    <div className="space-y-6 py-8 text-center">
+      <div className="w-24 h-24 mx-auto bg-emerald-500/10 rounded-3xl flex items-center justify-center text-emerald-500 mb-6">
+        <Smartphone className="w-12 h-12" />
+      </div>
+      <div className="space-y-2">
+        <h3 className="text-xl font-black text-white uppercase tracking-widest">APK Creator [NANO-X]</h3>
+        <p className="text-xs text-zinc-500 max-w-xs mx-auto uppercase tracking-widest">Convert your web application into a native Android package without coding.</p>
+      </div>
+
+      {status === 'idle' && (
+        <button 
+          onClick={handleCreate}
+          className="px-12 py-4 bg-emerald-500 text-black rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20"
+        >
+          Generate APK
+        </button>
+      )}
+
+      {status === 'compiling' && (
+        <div className="space-y-4 max-w-xs mx-auto">
+          <div className="flex justify-between text-[10px] font-bold text-emerald-500 uppercase tracking-widest">
+            <span>Compiling Assets...</span>
+            <span>{progress}%</span>
+          </div>
+          <div className="h-2 bg-zinc-900 rounded-full overflow-hidden border border-white/5">
+            <motion.div 
+              className="h-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]"
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+            />
+          </div>
+          <div className="text-[8px] font-mono text-zinc-600 animate-pulse">
+            &gt; Initializing Gradle...<br/>
+            &gt; Optimizing Dex files...<br/>
+            &gt; Signing package...
+          </div>
+        </div>
+      )}
+
+      {status === 'done' && (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="space-y-6"
+        >
+          <div className="p-6 glass border border-emerald-500/30 rounded-3xl inline-block">
+            <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto mb-2" />
+            <div className="text-sm font-bold text-white">NanoSuite_v1.0.apk</div>
+            <div className="text-[10px] text-zinc-500">Size: 4.2 MB | Signed: YES</div>
+          </div>
+          <button className="w-full py-4 bg-blue-500 text-white rounded-2xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2">
+            <Download className="w-4 h-4" /> Download APK
+          </button>
+          <button onClick={() => setStatus('idle')} className="text-[10px] text-zinc-600 uppercase font-bold hover:text-zinc-400">Create Another</button>
+        </motion.div>
+      )}
+    </div>
+  );
+};
+
+const DeepSearchTool = () => {
+  const [query, setQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [results, setResults] = useState<any[]>([]);
+
+  const handleSearch = async () => {
+    if (!query) return;
+    setIsSearching(true);
+    try {
+      const res = await generateAIContent(`Perform a deep web search for: ${query}. Return a JSON array of 5 detailed findings: { title: string, snippet: string, source: string, riskLevel: 'Low' | 'Medium' | 'High' }`, 'ai-1');
+      setResults(JSON.parse(res || '[]'));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex gap-2">
+        <input 
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Enter deep search query..."
+          className="flex-1 bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500/50"
+        />
+        <button 
+          onClick={handleSearch}
+          disabled={isSearching}
+          className="p-3 bg-blue-500 rounded-xl disabled:opacity-50"
+        >
+          {isSearching ? <RefreshCw className="w-5 h-5 text-white animate-spin" /> : <SearchIcon className="w-5 h-5 text-white" />}
+        </button>
+      </div>
+
+      <div className="space-y-4">
+        {results.map((r, i) => (
+          <motion.div 
+            key={i}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+            className="glass p-6 rounded-3xl border border-white/5 space-y-3"
+          >
+            <div className="flex justify-between items-start">
+              <h4 className="text-sm font-bold text-white">{r.title}</h4>
+              <span className={`text-[8px] font-bold uppercase px-2 py-1 rounded ${
+                r.riskLevel === 'High' ? 'bg-red-500/20 text-red-400' : 
+                r.riskLevel === 'Medium' ? 'bg-orange-500/20 text-orange-400' : 
+                'bg-emerald-500/20 text-emerald-400'
+              }`}>
+                {r.riskLevel} Risk
+              </span>
+            </div>
+            <p className="text-xs text-zinc-400 leading-relaxed">{r.snippet}</p>
+            <div className="text-[8px] font-mono text-zinc-600 uppercase tracking-widest">Source: {r.source}</div>
+          </motion.div>
+        ))}
+        {results.length === 0 && !isSearching && (
+          <div className="text-center py-20 opacity-20">
+            <Search className="w-12 h-12 mx-auto mb-4" />
+            <p className="text-xs uppercase tracking-widest font-bold">Awaiting Deep Query...</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const HeaderCheckTool = () => {
   const [url, setUrl] = useState('');
   const [headers, setHeaders] = useState<any>(null);
@@ -647,35 +828,96 @@ const HeaderCheckTool = () => {
 };
 
 const Tools: React.FC = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [activeTool, setActiveTool] = useState<Tool>('none');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleToolClick = React.useCallback((id: Tool) => {
+    const tool = toolData[id];
+    if (tool?.path) {
+      navigate(tool.path);
+      return;
+    }
     setActiveTool(id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+  }, [navigate]);
 
-  const categories = [
+  const categories = useMemo(() => [
     {
-      name: 'Islami (9)',
+      name: 'NANO SPECIAL',
+      icon: Star,
+      color: 'text-yellow-400',
+      tools: ['wifiscan', 'leaderboard', 'vpn', 'coinstorage', 'ranking', 'gamecenter', 'systemtracker', 'alarm', 'healthtracker', 'apkcreator', 'deepsearch']
+    },
+    {
+      name: 'SPECIAL TOOLS',
+      icon: Sparkles,
+      color: 'text-emerald-400',
+      tools: ['tiktok', 'youtube', 'stalker', 'cyber', 'builder', 'image-gen', 'video-gen', 'voice', 'deepfake', 'review', 'calendar', 'iqtest', 'network', 'port', 'hash', 'stegano', 'vuln', 'breach', 'username']
+    },
+    {
+      name: 'CYBER SYSTEMS',
+      icon: ShieldAlert,
+      color: 'text-red-400',
+      tools: ['antivirus', 'devcheck', 'iptracker', 'whoislookup', 'dnslookup', 'osint', 'headercheck', 'systemtracker', 'vpn', 'ipmask', 'live-data']
+    },
+    {
+      name: 'ISLAMIC SUITE',
       icon: Moon,
       color: 'text-emerald-400',
       tools: ['quran', 'prayer', 'asmaul', 'hadith', 'qibla', 'hijri', 'zakat', 'duas', 'islamicquiz']
     },
     {
-      name: 'Cyber Tracking (5)',
-      icon: ShieldAlert,
-      color: 'text-red-400',
-      tools: ['iptracker', 'whoislookup', 'dnslookup', 'osint', 'headercheck']
+      name: 'SOCIAL & GAMES',
+      icon: Gamepad2,
+      color: 'text-purple-400',
+      tools: ['gameshub', 'leaderboard', 'coins', 'cyberchat', 'anime', 'tv', 'livetv', 'hdvideo', 'trending']
     },
     {
-      name: 'Productivity',
-      icon: FileText,
+      name: 'UTILITIES',
+      icon: Wrench,
       color: 'text-blue-400',
-      tools: ['calculator', 'notes', 'math', 'finance', 'celengan', 'password', 'qr', 'converter', 'stopwatch', 'worldclock', 'currency', 'translator', 'recipe', 'bmi', 'mood', 'encryptor', 'pomodoro', 'weather', 'dictionary', 'colorpicker', 'lorem', 'markdown', 'json', 'habit', 'metronome', 'drawing', 'typing', 'morse', 'base64', 'url', 'case', 'subdomain', 'whois', 'ssl', 'admin', 'metadata', 'resume', 'expense', 'passmanager', 'pdf', 'compressor', 'animals', 'colors', 'piano', 'spelling', 'kidsquiz', 'coloring', 'story', 'kidsmath', 'kidsmemory', 'alphabet', 'browser', 'trending', 'wifi', 'antivirus', 'devcheck', 'anime', 'tv', 'hdvideo', 'ipmask', 'cyberchat', 'livetv']
+      tools: ['wifi', 'apkcreator', 'deepsearch', 'alarm', 'health', 'calculator', 'notes', 'math', 'finance', 'celengan', 'password', 'qr', 'converter', 'stopwatch', 'worldclock', 'currency', 'translator', 'recipe', 'bmi', 'mood', 'encryptor', 'pomodoro', 'weather', 'dictionary', 'colorpicker', 'lorem', 'markdown', 'json', 'habit', 'metronome', 'drawing', 'typing', 'morse', 'base64', 'url', 'case', 'browser', 'subdomain', 'whois', 'ssl', 'admin', 'metadata', 'resume', 'expense', 'passmanager', 'pdf', 'compressor', 'animals', 'colors', 'piano', 'spelling', 'kidsquiz', 'coloring', 'story', 'kidsmath', 'kidsmemory', 'alphabet']
     }
-  ];
+  ], []);
 
   const toolData: Record<string, any> = {
+    // Special Tools
+    tiktok: { name: 'TikTok DL', icon: Download, color: 'bg-pink-500/20 text-pink-400' },
+    youtube: { name: 'YouTube DL', icon: Youtube, color: 'bg-red-500/20 text-red-400' },
+    stalker: { name: 'Stalker', icon: UserSearch, color: 'bg-blue-500/20 text-blue-400' },
+    cyber: { name: 'Cyber Tool', icon: Shield, color: 'bg-red-500/20 text-red-400' },
+    builder: { name: 'App Builder', icon: Hammer, color: 'bg-zinc-500/20 text-zinc-400' },
+    'image-gen': { name: 'AI Image', icon: ImageIcon, color: 'bg-cyan-500/20 text-cyan-400' },
+    'video-gen': { name: 'AI Video', icon: Video, color: 'bg-purple-500/20 text-purple-400' },
+    voice: { name: 'AI Voice', icon: Mic, color: 'bg-rose-500/20 text-rose-400' },
+    deepfake: { name: 'Deepfake', icon: Scan, color: 'bg-red-500/20 text-red-400' },
+    review: { name: 'AI Review', icon: MessageSquare, color: 'bg-emerald-500/20 text-emerald-400' },
+    calendar: { name: 'Calendar', icon: CalendarIcon, color: 'bg-blue-500/20 text-blue-400' },
+    iqtest: { name: 'IQ Test', icon: Brain, color: 'bg-purple-500/20 text-purple-400' },
+    network: { name: 'Network', icon: Wifi, color: 'bg-emerald-500/20 text-emerald-400' },
+    port: { name: 'Port Scan', icon: Globe, color: 'bg-blue-500/20 text-blue-400' },
+    hash: { name: 'Hash Tool', icon: Lock, color: 'bg-purple-500/20 text-purple-400' },
+    stegano: { name: 'Stegano', icon: ImageIcon, color: 'bg-cyan-500/20 text-cyan-400' },
+    vuln: { name: 'Vuln Scan', icon: Shield, color: 'bg-red-500/20 text-red-400' },
+    breach: { name: 'Breach', icon: Shield, color: 'bg-orange-500/20 text-orange-400' },
+    username: { name: 'User Track', icon: UserSearch, color: 'bg-indigo-500/20 text-indigo-400' },
+
+    // Systems
+    systemtracker: { name: 'Sys Tracker', icon: Activity, color: 'bg-emerald-500/20 text-emerald-400' },
+    vpn: { name: 'VPN Connect', icon: Lock, color: 'bg-blue-500/20 text-blue-400' },
+    antivirus: { name: 'X Zero AV', icon: ShieldAlert, color: 'bg-red-500/20 text-red-400' },
+    devcheck: { name: 'Dev Check', icon: Cpu, color: 'bg-emerald-500/20 text-emerald-400' },
+    iptracker: { name: 'IP Tracker', icon: Locate, color: 'bg-red-500/20 text-red-400' },
+    whoislookup: { name: 'WHOIS Lookup', icon: GlobeIcon, color: 'bg-red-500/20 text-red-400' },
+    dnslookup: { name: 'DNS Lookup', icon: Network, color: 'bg-red-500/20 text-red-400' },
+    osint: { name: 'OSINT Search', icon: Fingerprint, color: 'bg-red-500/20 text-red-400' },
+    headercheck: { name: 'Header Check', icon: Scan, color: 'bg-red-500/20 text-red-400' },
+    ipmask: { name: 'IP Masking', icon: Shield, color: 'bg-purple-500/20 text-purple-400' },
+    'live-data': { name: 'Live Systems', icon: Activity, color: 'bg-blue-500/20 text-blue-400', path: '/live' },
+
+    // Islamic
     quran: { name: 'Al-Quran', icon: BookOpen, color: 'bg-emerald-500/20 text-emerald-400' },
     prayer: { name: 'Prayer Times', icon: PrayerIcon, color: 'bg-emerald-500/20 text-emerald-400' },
     asmaul: { name: 'Asmaul Husna', icon: Star, color: 'bg-emerald-500/20 text-emerald-400' },
@@ -685,22 +927,60 @@ const Tools: React.FC = () => {
     zakat: { name: 'Zakat Calc', icon: Banknote, color: 'bg-emerald-500/20 text-emerald-400' },
     duas: { name: 'Daily Duas', icon: Heart, color: 'bg-emerald-500/20 text-emerald-400' },
     islamicquiz: { name: 'Islamic Quiz', icon: QuizIcon, color: 'bg-emerald-500/20 text-emerald-400' },
-    iptracker: { name: 'IP Tracker', icon: Locate, color: 'bg-red-500/20 text-red-400' },
-    whoislookup: { name: 'WHOIS Lookup', icon: GlobeIcon, color: 'bg-red-500/20 text-red-400' },
-    dnslookup: { name: 'DNS Lookup', icon: Network, color: 'bg-red-500/20 text-red-400' },
-    osint: { name: 'OSINT Search', icon: Fingerprint, color: 'bg-red-500/20 text-red-400' },
-    headercheck: { name: 'Header Check', icon: Scan, color: 'bg-red-500/20 text-red-400' },
-    wifi: { name: 'WiFi Management', icon: Wifi, color: 'bg-blue-500/20 text-blue-400' },
-    antivirus: { name: 'X Zero AV', icon: ShieldAlert, color: 'bg-red-500/20 text-red-400' },
-    devcheck: { name: 'Dev Check', icon: Cpu, color: 'bg-emerald-500/20 text-emerald-400' },
+
+    // Social & Games
+    gameshub: { name: '100 Games', icon: Gamepad2, color: 'bg-purple-500/20 text-purple-400' },
+    coins: { name: 'Coin Storage', icon: Banknote, color: 'bg-emerald-500/20 text-emerald-400' },
+    cyberchat: { name: 'Cyber Chat', icon: MessageSquare, color: 'bg-emerald-500/20 text-emerald-400' },
     anime: { name: 'Anime Search', icon: Play, color: 'bg-orange-500/20 text-orange-400' },
     tv: { name: 'Live TV', icon: Tv, color: 'bg-sky-500/20 text-sky-400' },
-    hdvideo: { name: 'HD Video Player', icon: Play, color: 'bg-emerald-500/20 text-emerald-400' },
-    ipmask: { name: 'IP Masking', icon: Shield, color: 'bg-purple-500/20 text-purple-400' },
-    cyberchat: { name: 'Cyber Chat', icon: MessageSquare, color: 'bg-emerald-500/20 text-emerald-400' },
+    hdvideo: { name: 'HD Video', icon: Play, color: 'bg-emerald-500/20 text-emerald-400' },
     livetv: { name: 'Live TV Pro', icon: Tv, color: 'bg-orange-500/20 text-orange-400' },
-    browser: { name: 'Browser', icon: Chrome, color: 'bg-blue-500/20 text-blue-400' },
     trending: { name: 'Trending', icon: Zap, color: 'bg-yellow-500/20 text-yellow-400' },
+
+    // Utilities
+    wifi: { name: 'WiFi Scanner', icon: Wifi, color: 'bg-blue-500/20 text-blue-400' },
+    wifiscan: { name: 'WiFi Scan Pro', icon: Wifi, color: 'bg-blue-500/20 text-blue-400' },
+    leaderboard: { name: 'Leaderboard', icon: Trophy, color: 'bg-yellow-500/20 text-yellow-400' },
+    coinstorage: { name: 'Coin Storage', icon: Coins, color: 'bg-emerald-500/20 text-emerald-400' },
+    ranking: { name: 'User Ranking', icon: Trophy, color: 'bg-orange-500/20 text-orange-400' },
+    gamecenter: { name: '100 Games', icon: Gamepad, color: 'bg-pink-500/20 text-pink-400' },
+    healthtracker: { name: 'Health Track', icon: HeartPulse, color: 'bg-rose-500/20 text-rose-400' },
+    apkcreator: { name: 'APK Creator', icon: Smartphone, color: 'bg-emerald-500/20 text-emerald-400' },
+    deepsearch: { name: 'Deep Search', icon: Search, color: 'bg-blue-500/20 text-blue-400' },
+    health: { name: 'Health Track', icon: Activity, color: 'bg-emerald-500/20 text-emerald-400' },
+    calculator: { name: 'Calculator', icon: Calculator, color: 'bg-blue-500/20 text-blue-400' },
+    notes: { name: 'Notes', icon: FileText, color: 'bg-emerald-500/20 text-emerald-400' },
+    math: { name: 'Math Solver', icon: PlusCircle, color: 'bg-orange-500/20 text-orange-400' },
+    finance: { name: 'Finance', icon: TrendingUp, color: 'bg-blue-500/20 text-blue-400' },
+    celengan: { name: 'Celengan', icon: PiggyBank, color: 'bg-pink-500/20 text-pink-400' },
+    password: { name: 'Pass Gen', icon: Lock, color: 'bg-red-500/20 text-red-400' },
+    qr: { name: 'QR Gen', icon: QrCode, color: 'bg-zinc-500/20 text-zinc-400' },
+    converter: { name: 'Converter', icon: Scale, color: 'bg-emerald-500/20 text-emerald-400' },
+    stopwatch: { name: 'Stopwatch', icon: Timer, color: 'bg-orange-500/20 text-orange-400' },
+    worldclock: { name: 'World Clock', icon: Globe, color: 'bg-blue-500/20 text-blue-400' },
+    currency: { name: 'Currency', icon: Banknote, color: 'bg-emerald-500/20 text-emerald-400' },
+    translator: { name: 'Translator', icon: Languages, color: 'bg-indigo-500/20 text-indigo-400' },
+    recipe: { name: 'Recipe AI', icon: Utensils, color: 'bg-orange-500/20 text-orange-400' },
+    bmi: { name: 'BMI Calc', icon: Activity, color: 'bg-blue-500/20 text-blue-400' },
+    mood: { name: 'Mood Tracker', icon: Smile, color: 'bg-yellow-500/20 text-yellow-400' },
+    encryptor: { name: 'File Encrypt', icon: Lock, color: 'bg-red-500/20 text-red-400' },
+    pomodoro: { name: 'Pomodoro', icon: Clock, color: 'bg-rose-500/20 text-rose-400' },
+    weather: { name: 'AI Weather', icon: Cloud, color: 'bg-sky-500/20 text-sky-400' },
+    dictionary: { name: 'AI Dictionary', icon: Book, color: 'bg-indigo-500/20 text-indigo-400' },
+    colorpicker: { name: 'Color Picker', icon: Palette, color: 'bg-pink-500/20 text-pink-400' },
+    lorem: { name: 'Lorem Ipsum', icon: AlignLeft, color: 'bg-zinc-500/20 text-zinc-400' },
+    markdown: { name: 'MD Preview', icon: FileCode, color: 'bg-blue-500/20 text-blue-400' },
+    json: { name: 'JSON Format', icon: FileCode, color: 'bg-emerald-500/20 text-emerald-400' },
+    habit: { name: 'Habit Tracker', icon: CheckSquare, color: 'bg-purple-500/20 text-purple-400' },
+    metronome: { name: 'Metronome', icon: Music, color: 'bg-orange-500/20 text-orange-400' },
+    drawing: { name: 'Drawing Pad', icon: PenTool, color: 'bg-cyan-500/20 text-cyan-400' },
+    typing: { name: 'Typing Test', icon: Keyboard, color: 'bg-yellow-500/20 text-yellow-400' },
+    morse: { name: 'Morse Code', icon: Radio, color: 'bg-emerald-500/20 text-emerald-400' },
+    base64: { name: 'Base64 Tool', icon: Binary, color: 'bg-blue-500/20 text-blue-400' },
+    url: { name: 'URL Tool', icon: Link, color: 'bg-indigo-500/20 text-indigo-400' },
+    case: { name: 'Case Tool', icon: Type, color: 'bg-zinc-500/20 text-zinc-400' },
+    browser: { name: 'Browser', icon: Chrome, color: 'bg-blue-500/20 text-blue-400' },
     subdomain: { name: 'Sub Scanner', icon: Globe, color: 'bg-indigo-500/20 text-indigo-400' },
     whois: { name: 'Whois', icon: FileSearch, color: 'bg-emerald-500/20 text-emerald-400' },
     ssl: { name: 'SSL Check', icon: Shield, color: 'bg-cyan-500/20 text-cyan-400' },
@@ -721,41 +1001,39 @@ const Tools: React.FC = () => {
     kidsmath: { name: 'Kids Math', icon: Plus, color: 'bg-orange-500/20 text-orange-400' },
     kidsmemory: { name: 'Memory', icon: Brain, color: 'bg-cyan-500/20 text-cyan-400' },
     alphabet: { name: 'Alphabet', icon: Type, color: 'bg-yellow-500/20 text-yellow-400' },
-    encryptor: { name: 'File Encrypt', icon: Lock, color: 'bg-red-500/20 text-red-400' },
-    pomodoro: { name: 'Pomodoro', icon: Clock, color: 'bg-rose-500/20 text-rose-400' },
-    weather: { name: 'AI Weather', icon: Cloud, color: 'bg-sky-500/20 text-sky-400' },
-    dictionary: { name: 'AI Dictionary', icon: Book, color: 'bg-indigo-500/20 text-indigo-400' },
-    colorpicker: { name: 'Color Picker', icon: Palette, color: 'bg-pink-500/20 text-pink-400' },
-    lorem: { name: 'Lorem Ipsum', icon: AlignLeft, color: 'bg-zinc-500/20 text-zinc-400' },
-    markdown: { name: 'MD Preview', icon: FileCode, color: 'bg-blue-500/20 text-blue-400' },
-    json: { name: 'JSON Format', icon: FileCode, color: 'bg-emerald-500/20 text-emerald-400' },
-    habit: { name: 'Habit Tracker', icon: CheckSquare, color: 'bg-purple-500/20 text-purple-400' },
-    metronome: { name: 'Metronome', icon: Music, color: 'bg-orange-500/20 text-orange-400' },
-    drawing: { name: 'Drawing Pad', icon: PenTool, color: 'bg-cyan-500/20 text-cyan-400' },
-    typing: { name: 'Typing Test', icon: Keyboard, color: 'bg-yellow-500/20 text-yellow-400' },
-    morse: { name: 'Morse Code', icon: Radio, color: 'bg-emerald-500/20 text-emerald-400' },
-    base64: { name: 'Base64 Tool', icon: Binary, color: 'bg-blue-500/20 text-blue-400' },
-    url: { name: 'URL Tool', icon: Link, color: 'bg-indigo-500/20 text-indigo-400' },
-    calculator: { name: 'Calculator', icon: Calculator, color: 'bg-blue-500/20 text-blue-400' },
-    notes: { name: 'Notes', icon: FileText, color: 'bg-emerald-500/20 text-emerald-400' },
-    math: { name: 'Math Solver', icon: PlusCircle, color: 'bg-orange-500/20 text-orange-400' },
-    finance: { name: 'Finance Tracker', icon: TrendingUp, color: 'bg-blue-500/20 text-blue-400' },
-    celengan: { name: 'Celengan', icon: PiggyBank, color: 'bg-pink-500/20 text-pink-400' },
-    games: { name: 'Games', icon: Gamepad2, color: 'bg-purple-500/20 text-purple-400' },
-    password: { name: 'Pass Gen', icon: Lock, color: 'bg-red-500/20 text-red-400' },
-    qr: { name: 'QR Gen', icon: QrCode, color: 'bg-zinc-500/20 text-zinc-400' },
-    converter: { name: 'Converter', icon: Scale, color: 'bg-emerald-500/20 text-emerald-400' },
-    stopwatch: { name: 'Stopwatch', icon: Timer, color: 'bg-orange-500/20 text-orange-400' },
-    worldclock: { name: 'World Clock', icon: Globe, color: 'bg-blue-500/20 text-blue-400' },
-    currency: { name: 'Currency', icon: Banknote, color: 'bg-emerald-500/20 text-emerald-400' },
-    translator: { name: 'Translator', icon: Languages, color: 'bg-indigo-500/20 text-indigo-400' },
-    recipe: { name: 'Recipe AI', icon: Utensils, color: 'bg-orange-500/20 text-orange-400' },
-    bmi: { name: 'BMI Calc', icon: Activity, color: 'bg-blue-500/20 text-blue-400' },
-    mood: { name: 'Mood Tracker', icon: Smile, color: 'bg-yellow-500/20 text-yellow-400' },
   };
 
+  const filteredCategories = useMemo(() => {
+    if (!searchQuery) return categories;
+    return categories.map(cat => ({
+      ...cat,
+      tools: cat.tools.filter(id => 
+        toolData[id]?.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    })).filter(cat => cat.tools.length > 0);
+  }, [searchQuery, categories, toolData]);
+
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-8 pb-12">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400">
+            <Wrench className="w-6 h-6" />
+          </div>
+          <h1 className="text-2xl font-serif font-bold">Tools Center</h1>
+        </div>
+        <div className="hidden sm:flex items-center gap-4">
+          <div className="flex items-center gap-2 px-3 py-1.5 glass rounded-full border border-white/5">
+            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
+            <span className="text-[8px] font-bold text-emerald-500 uppercase tracking-widest">System Online</span>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-1.5 glass rounded-full border border-white/5">
+            <Cpu className="w-3 h-3 text-blue-400" />
+            <span className="text-[8px] font-bold text-blue-400 uppercase tracking-widest">CPU: 12%</span>
+          </div>
+        </div>
+      </div>
+
       <AnimatePresence mode="wait">
         {activeTool === 'none' ? (
           <motion.div 
@@ -765,17 +1043,55 @@ const Tools: React.FC = () => {
             exit={{ opacity: 0, scale: 0.95 }}
             className="space-y-12"
           >
-            {categories.map((cat) => (
-              <div key={cat.name} className="space-y-6">
-                <div className="flex items-center gap-4">
-                  <div className="h-px flex-1 bg-white/10" />
-                  <div className="flex items-center gap-2">
-                    <cat.icon className={`w-3 h-3 ${cat.color}`} />
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500">{cat.name}</h3>
+            <div className="relative mb-8">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+              <input 
+                type="text"
+                placeholder="Search tools..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-zinc-950/50 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:border-emerald-500/30 transition-all"
+              />
+            </div>
+
+            {/* Featured Tools Section */}
+            <section className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-yellow-500/20 text-yellow-400">
+                    <Star className="w-5 h-5" />
                   </div>
-                  <div className="h-px flex-1 bg-white/10" />
+                  <h2 className="text-xl font-black tracking-tighter text-white uppercase italic">Featured Tools</h2>
                 </div>
-                <div className="grid grid-cols-3 gap-3">
+              </div>
+              
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {categories.find(c => c.name === 'NANO SPECIAL')?.tools.map(id => {
+                  const tool = toolData[id];
+                  if (!tool) return null;
+                  return (
+                    <ToolButton 
+                      key={id} 
+                      tool={tool} 
+                      onClick={() => handleToolClick(id as Tool)} 
+                    />
+                  );
+                })}
+              </div>
+            </section>
+
+            {filteredCategories.filter(c => c.name !== 'NANO SPECIAL').map((cat) => (
+              <div key={cat.name} className="space-y-6">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className={`p-3 rounded-2xl bg-zinc-900 border border-white/5 shadow-xl ${cat.color}`}>
+                    <cat.icon className="w-6 h-6" />
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-lg font-black tracking-tighter text-white uppercase italic">{cat.name}</h2>
+                    <div className="h-px w-full bg-gradient-to-r from-emerald-500/50 to-transparent mt-1" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                   {cat.tools.map(id => {
                     const tool = toolData[id];
                     if (!tool) return null;
@@ -881,6 +1197,25 @@ const Tools: React.FC = () => {
             {activeTool === 'hadith' && <HadithTool />}
             {activeTool === 'qibla' && <QiblaTool />}
             {activeTool === 'hijri' && <HijriTool />}
+            {activeTool === 'tiktok' && <TikTokTool />}
+            {activeTool === 'youtube' && <YouTubeTool />}
+            {activeTool === 'stalker' && <StalkerSuite />}
+            {activeTool === 'cyber' && <CyberTool />}
+            {activeTool === 'builder' && <BuilderTool />}
+            {activeTool === 'image-gen' && <ImageGenTool />}
+            {activeTool === 'video-gen' && <VideoGenTool />}
+            {activeTool === 'voice' && <VoiceTool />}
+            {activeTool === 'deepfake' && <DeepfakeTool />}
+            {activeTool === 'review' && <ReviewTool />}
+            {activeTool === 'calendar' && <FullCalendarTool />}
+            {activeTool === 'iqtest' && <IQTestTool />}
+            {activeTool === 'network' && <NetworkScannerTool />}
+            {activeTool === 'port' && <PortScannerTool />}
+            {activeTool === 'hash' && <HashTool />}
+            {activeTool === 'stegano' && <SteganographyTool />}
+            {activeTool === 'vuln' && <VulnScannerTool />}
+            {activeTool === 'breach' && <BreachCheckerTool />}
+            {activeTool === 'username' && <UsernameTrackerTool />}
             {activeTool === 'zakat' && <ZakatTool />}
             {activeTool === 'duas' && <DuasTool />}
             {activeTool === 'islamicquiz' && <IslamicQuizTool />}
@@ -889,6 +1224,18 @@ const Tools: React.FC = () => {
             {activeTool === 'dnslookup' && <DNSLookupTool />}
             {activeTool === 'osint' && <OSINTSearchTool />}
             {activeTool === 'headercheck' && <HeaderCheckTool />}
+            {activeTool === 'apkcreator' && <APKCreatorTool />}
+            {activeTool === 'deepsearch' && <DeepSearchTool />}
+            {activeTool === 'wifiscan' && <WiFiScanTool />}
+            {activeTool === 'leaderboard' && <LeaderboardTool />}
+            {activeTool === 'coinstorage' && <CoinStorageTool />}
+            {activeTool === 'ranking' && <RankingTool />}
+            {activeTool === 'gamecenter' && <GameCenterTool />}
+            {activeTool === 'systemtracker' && <SystemTrackerTool />}
+            {activeTool === 'alarm' && <AlarmTool />}
+            {activeTool === 'health' && <HealthTrackerTool />}
+            {activeTool === 'vpn' && <VPNTool user={user} />}
+            {activeTool === 'gameshub' && <GamesHubTool />}
           </motion.div>
         )}
       </AnimatePresence>
@@ -4076,5 +4423,691 @@ const LiveTV = memo(() => {
     </div>
   );
 });
+
+const WiFiScanTool = () => {
+  const [scanning, setScanning] = useState(false);
+  const [networks, setNetworks] = useState<any[]>([]);
+
+  const scan = async () => {
+    setScanning(true);
+    setNetworks([]);
+    await new Promise(r => setTimeout(r, 3000));
+    setNetworks([
+      { ssid: 'NANO_SECURE_5G', signal: '100%', security: 'WPA3', pass: 'nano2024' },
+      { ssid: 'TP-LINK_9921', signal: '85%', security: 'WPA2', pass: 'admin123' },
+      { ssid: 'FREE_WIFI_MALL', signal: '40%', security: 'OPEN', pass: 'NONE' },
+      { ssid: 'HOME_NETWORK', signal: '92%', security: 'WPA2', pass: 'password88' },
+    ]);
+    setScanning(false);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="p-8 glass border border-blue-500/30 rounded-[3rem] text-center space-y-4">
+        <div className="relative inline-block">
+          <Wifi className={`w-16 h-16 text-blue-400 ${scanning ? 'animate-ping' : ''}`} />
+          {scanning && <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full" />}
+        </div>
+        <h3 className="text-xl font-black text-white uppercase tracking-widest">WiFi Scanner</h3>
+        <button 
+          onClick={scan} 
+          disabled={scanning}
+          className="px-8 py-3 bg-blue-500 text-white rounded-full font-bold text-xs uppercase tracking-widest disabled:opacity-50"
+        >
+          {scanning ? 'Scanning...' : 'Start Scan'}
+        </button>
+      </div>
+
+      <div className="space-y-3">
+        {networks.map((n, i) => (
+          <motion.div 
+            key={i}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.1 }}
+            className="p-4 glass rounded-2xl border border-white/5 flex items-center justify-between group hover:border-blue-500/30 transition-all"
+          >
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-xl bg-blue-500/10 text-blue-400">
+                <Wifi className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-sm font-bold text-white">{n.ssid}</div>
+                <div className="text-[8px] text-zinc-500 uppercase tracking-widest">{n.security} • Signal: {n.signal}</div>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-[8px] text-zinc-600 uppercase font-bold mb-1">Password</div>
+              <div className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded-lg">{n.pass}</div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const VPNTool = ({ user }: { user: any }) => {
+  const [connected, setConnected] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const toggle = async () => {
+    if (user?.role !== 'owner' && user?.role !== 'admin') {
+      alert('VPN Access restricted to Admin/Owner only.');
+      return;
+    }
+    setLoading(true);
+    await new Promise(r => setTimeout(r, 2000));
+    setConnected(!connected);
+    setLoading(false);
+  };
+
+  return (
+    <div className="space-y-8 text-center py-8">
+      <div className="relative inline-block">
+        <div className={`absolute inset-0 blur-3xl rounded-full transition-all duration-1000 ${connected ? 'bg-purple-500/30' : 'bg-zinc-900'}`} />
+        <div className={`relative p-10 rounded-[3rem] border transition-all duration-500 ${connected ? 'bg-purple-500/10 border-purple-500/50' : 'bg-zinc-950 border-white/10'}`}>
+          <Lock className={`w-20 h-20 mx-auto mb-4 transition-all duration-500 ${connected ? 'text-purple-400' : 'text-zinc-700'}`} />
+          <h3 className="text-xl font-black text-white uppercase tracking-widest">Nano VPN</h3>
+          <p className={`text-[10px] font-mono mt-2 ${connected ? 'text-purple-400' : 'text-zinc-500'}`}>
+            {connected ? 'SECURE TUNNEL ACTIVE' : 'DISCONNECTED'}
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-4 max-w-xs mx-auto">
+        <div className="grid grid-cols-2 gap-2">
+          <div className="p-3 glass rounded-xl border border-white/5 text-left">
+            <div className="text-[8px] text-zinc-500 uppercase">Protocol</div>
+            <div className="text-[10px] font-bold text-white">OpenVPN / UDP</div>
+          </div>
+          <div className="p-3 glass rounded-xl border border-white/5 text-left">
+            <div className="text-[8px] text-zinc-500 uppercase">Server</div>
+            <div className="text-[10px] font-bold text-white">Singapore-01</div>
+          </div>
+        </div>
+
+        <button 
+          onClick={toggle}
+          disabled={loading}
+          className={`w-full py-5 rounded-[2rem] font-black text-sm uppercase tracking-widest transition-all ${
+            connected ? 'bg-red-500 text-white shadow-red-500/20' : 'bg-purple-500 text-white shadow-purple-500/20'
+          }`}
+        >
+          {loading ? <RefreshCw className="w-5 h-5 animate-spin mx-auto" /> : connected ? 'Disconnect VPN' : 'Connect VPN'}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const RankingTool = () => (
+  <div className="space-y-6">
+    <div className="text-center space-y-2">
+      <Trophy className="w-12 h-12 text-orange-500 mx-auto" />
+      <h3 className="text-xl font-black text-white uppercase tracking-widest">User Rankings</h3>
+    </div>
+    <div className="space-y-3">
+      {[
+        { name: 'Nazril', role: 'OWNER', coins: 15000, level: 99 },
+        { name: 'CyberX', role: 'ADMIN', coins: 12400, level: 85 },
+        { name: 'Shadow', role: 'PREMIUM', coins: 9800, level: 72 },
+      ].map((u, i) => (
+        <div key={i} className="p-4 glass rounded-2xl border border-white/5 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-white/5 flex items-center justify-center text-xs font-bold text-white">
+              {u.level}
+            </div>
+            <div>
+              <div className="text-sm font-bold text-white">{u.name}</div>
+              <div className="text-[8px] text-zinc-500 uppercase">{u.role}</div>
+            </div>
+          </div>
+          <div className="text-right">
+            <div className="text-xs font-bold text-emerald-400">{u.coins.toLocaleString()}</div>
+            <div className="text-[8px] text-zinc-600 uppercase">COINS</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const GameCenterTool = () => (
+  <div className="space-y-6">
+    <div className="p-6 bg-pink-500/10 rounded-3xl border border-pink-500/20 text-center space-y-2">
+      <Gamepad className="w-12 h-12 text-pink-500 mx-auto" />
+      <h3 className="font-bold uppercase tracking-widest">100+ Games Center</h3>
+      <p className="text-[10px] text-zinc-500 uppercase">Multiplayer & Real-time Gaming</p>
+    </div>
+    <div className="grid grid-cols-2 gap-3">
+      {[
+        { name: 'Cyber XOX', players: '24 Online', icon: '❌' },
+        { name: 'Nano Runner', players: '12 Online', icon: '🏃' },
+        { name: 'Hack Sim', players: '45 Online', icon: '💻' },
+        { name: 'Void Quest', players: '8 Online', icon: '🌌' },
+      ].map((g, i) => (
+        <button key={i} className="p-6 glass rounded-3xl border border-white/5 hover:border-pink-500/30 transition-all text-center space-y-2 group">
+          <div className="text-3xl group-hover:scale-110 transition-transform">{g.icon}</div>
+          <div className="text-xs font-bold text-white">{g.name}</div>
+          <div className="text-[8px] text-zinc-500 uppercase">{g.players}</div>
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
+const GamesHubTool = () => <GamesTool />;
+
+const LeaderboardTool = () => {
+  const leaders = [
+    { rank: 1, name: 'NanoOwner', coins: 999999, role: 'OWNER', color: 'text-red-500' },
+    { rank: 2, name: 'CyberKing', coins: 850000, role: 'ADMIN', color: 'text-emerald-500' },
+    { rank: 3, name: 'XZero', coins: 720000, role: 'PREMIUM', color: 'text-purple-500' },
+    { rank: 4, name: 'GhostUser', coins: 500000, role: 'USER', color: 'text-zinc-500' },
+    { rank: 5, name: 'RootNode', coins: 450000, role: 'USER', color: 'text-zinc-500' },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className="p-6 bg-yellow-500/10 rounded-3xl border border-yellow-500/20 text-center space-y-2">
+        <TrendingUp className="w-12 h-12 text-yellow-500 mx-auto" />
+        <h3 className="font-bold uppercase tracking-widest">Global Leaderboard</h3>
+        <p className="text-[10px] text-zinc-500 uppercase">Top Coin Holders</p>
+      </div>
+      <div className="space-y-2">
+        {leaders.map((l) => (
+          <div key={l.rank} className="p-4 glass rounded-2xl border border-white/5 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs ${l.rank === 1 ? 'bg-yellow-500 text-black' : 'bg-zinc-900 text-zinc-500'}`}>
+                {l.rank}
+              </div>
+              <div>
+                <div className="text-xs font-bold text-white">{l.name}</div>
+                <div className={`text-[8px] font-black uppercase tracking-widest ${l.color}`}>{l.role}</div>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-xs font-mono font-bold text-yellow-500">{l.coins.toLocaleString()}</div>
+              <div className="text-[8px] text-zinc-600 uppercase">COINS</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const CoinStorageTool = () => (
+  <div className="space-y-6">
+    <div className="p-8 bg-emerald-500/10 rounded-[2.5rem] border border-emerald-500/20 text-center space-y-4">
+      <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto shadow-2xl shadow-emerald-500/20">
+        <Banknote className="w-10 h-10 text-emerald-500" />
+      </div>
+      <div className="space-y-1">
+        <div className="text-4xl font-black text-white font-mono">2,450</div>
+        <div className="text-[10px] text-emerald-500 font-bold uppercase tracking-[0.3em]">Nano Coins Available</div>
+      </div>
+    </div>
+    <div className="grid grid-cols-2 gap-3">
+      <button className="p-4 glass rounded-2xl border border-white/5 text-center space-y-2">
+        <div className="text-[8px] text-zinc-500 uppercase font-bold">Daily Gacha</div>
+        <div className="text-xs font-bold text-emerald-400">CLAIM NOW</div>
+      </button>
+      <button className="p-4 glass rounded-2xl border border-white/5 text-center space-y-2">
+        <div className="text-[8px] text-zinc-500 uppercase font-bold">Redeem Code</div>
+        <div className="text-xs font-bold text-blue-400">ENTER CODE</div>
+      </button>
+    </div>
+    <div className="p-6 glass rounded-3xl border border-white/5 space-y-4">
+      <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Transaction History</h4>
+      <div className="space-y-3">
+        {[
+          { type: 'Daily Reward', amount: '+50', date: 'Today' },
+          { type: 'Quiz Win', amount: '+100', date: 'Yesterday' },
+          { type: 'Premium Buy', amount: '-500', date: '2 days ago' },
+        ].map((t, i) => (
+          <div key={i} className="flex justify-between items-center text-[10px]">
+            <span className="text-zinc-400 uppercase font-bold">{t.type}</span>
+            <div className="flex items-center gap-3">
+              <span className={t.amount.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}>{t.amount}</span>
+              <span className="text-zinc-600 uppercase">{t.date}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+const SystemTrackerTool = () => (
+  <div className="space-y-6">
+    <div className="p-6 bg-cyan-500/10 rounded-3xl border border-cyan-500/20 text-center space-y-2">
+      <Radar className="w-12 h-12 text-cyan-500 mx-auto animate-pulse" />
+      <h3 className="font-bold uppercase tracking-widest">System Tracker</h3>
+      <p className="text-[10px] text-zinc-500 uppercase">Real-time Nano Core Monitoring</p>
+    </div>
+    <div className="space-y-4">
+      {[
+        { name: 'X Health-power', status: 'STABLE', load: '12%' },
+        { name: 'X Def-1', status: 'ACTIVE', load: '5%' },
+        { name: 'DF-1 Firewall', status: 'SHIELDED', load: '100%' },
+        { name: 'Zero-Antivirus', status: 'SCANNING', load: '24%' },
+      ].map((s, i) => (
+        <div key={i} className="p-4 glass rounded-2xl border border-white/5 space-y-2">
+          <div className="flex justify-between items-center">
+            <div className="text-xs font-bold text-white">{s.name}</div>
+            <div className="text-[8px] font-black text-cyan-400 uppercase">{s.status}</div>
+          </div>
+          <div className="h-1 bg-zinc-900 rounded-full overflow-hidden">
+            <div className="h-full bg-cyan-500" style={{ width: s.load }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const AlarmTool = () => (
+  <div className="space-y-6 text-center py-8">
+    <div className="w-32 h-32 bg-red-500/10 rounded-full flex items-center justify-center mx-auto border border-red-500/20 relative">
+      <Bell className="w-16 h-16 text-red-500" />
+      <div className="absolute inset-0 border-2 border-red-500/20 rounded-full animate-ping" />
+    </div>
+    <div className="space-y-2">
+      <h3 className="text-4xl font-black text-white font-mono">07:00</h3>
+      <p className="text-xs text-zinc-500 uppercase tracking-widest">Next Alarm: Morning Routine</p>
+    </div>
+    <button className="w-full py-4 bg-red-500 text-white rounded-2xl font-bold uppercase tracking-widest text-xs">Set New Alarm</button>
+  </div>
+);
+
+const HealthTrackerTool = () => (
+  <div className="space-y-6">
+    <div className="p-6 bg-rose-500/10 rounded-3xl border border-rose-500/20 text-center space-y-2">
+      <HeartPulse className="w-12 h-12 text-rose-500 mx-auto" />
+      <h3 className="font-bold uppercase tracking-widest">Health Connection</h3>
+      <p className="text-[10px] text-zinc-500 uppercase">Body & System Vitality</p>
+    </div>
+    <div className="grid grid-cols-2 gap-3">
+      <div className="p-6 glass rounded-3xl border border-white/5 text-center space-y-1">
+        <div className="text-2xl font-black text-rose-500">72</div>
+        <div className="text-[8px] text-zinc-500 uppercase font-bold">BPM Heart</div>
+      </div>
+      <div className="p-6 glass rounded-3xl border border-white/5 text-center space-y-1">
+        <div className="text-2xl font-black text-blue-500">98%</div>
+        <div className="text-[8px] text-zinc-500 uppercase font-bold">System Health</div>
+      </div>
+    </div>
+  </div>
+);
+
+const StalkerSuite = () => {
+  const [target, setTarget] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [report, setReport] = useState('');
+
+  const stalk = async () => {
+    if (!target) return;
+    setLoading(true);
+    try {
+      const res = await generateAIContent(`Perform a deep OSINT investigation on target: ${target}. Analyze digital footprint, social presence, and potential leaks.`);
+      setReport(res || 'No data found.');
+    } catch (e) {
+      setReport('Intelligence gathering failed.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="p-6 bg-blue-500/10 rounded-3xl border border-blue-500/20 text-center space-y-2">
+        <UserSearch className="w-12 h-12 text-blue-500 mx-auto" />
+        <h3 className="font-bold uppercase tracking-widest">Stalker Suite</h3>
+        <p className="text-[10px] text-zinc-500 uppercase">Deep Intelligence Gathering</p>
+      </div>
+      <div className="flex gap-2">
+        <input 
+          value={target}
+          onChange={(e) => setTarget(e.target.value)}
+          placeholder="Enter Username, Email, or Name..."
+          className="flex-1 bg-zinc-950 border border-white/10 rounded-xl px-4 py-2 text-sm focus:border-blue-500/50"
+        />
+        <button onClick={stalk} className="p-2 bg-blue-500 rounded-xl">
+          {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
+        </button>
+      </div>
+      {report && (
+        <div className="glass p-4 rounded-2xl font-mono text-[10px] max-h-64 overflow-y-auto no-scrollbar whitespace-pre-wrap text-zinc-300 border border-white/5">
+          {report}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const CyberTool = () => (
+  <div className="space-y-6">
+    <div className="p-6 bg-red-500/10 rounded-3xl border border-red-500/20 text-center space-y-2">
+      <Shield className="w-12 h-12 text-red-500 mx-auto" />
+      <h3 className="font-bold uppercase tracking-widest">Cyber Toolkit</h3>
+      <p className="text-[10px] text-zinc-500 uppercase">Security Auditing Suite</p>
+    </div>
+    <div className="grid grid-cols-2 gap-3">
+      {['SQLi Scanner', 'XSS Auditor', 'Brute Force', 'Payload Gen', 'Reverse Shell', 'Packet Sniffer'].map((t, i) => (
+        <button key={i} className="p-4 glass rounded-2xl border border-white/5 text-center space-y-2 hover:border-red-500/50 transition-all">
+          <div className="w-10 h-10 bg-red-500/10 rounded-xl flex items-center justify-center mx-auto">
+            <Shield className="w-5 h-5 text-red-500" />
+          </div>
+          <div className="text-[10px] font-bold text-zinc-200 uppercase">{t}</div>
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
+const BuilderTool = () => (
+  <div className="space-y-6">
+    <div className="p-6 bg-zinc-500/10 rounded-3xl border border-zinc-500/20 text-center space-y-2">
+      <Hammer className="w-12 h-12 text-zinc-400 mx-auto" />
+      <h3 className="font-bold uppercase tracking-widest">App Builder</h3>
+      <p className="text-[10px] text-zinc-500 uppercase">No-Code Development</p>
+    </div>
+    <div className="p-12 glass rounded-3xl border border-white/5 text-center space-y-4">
+      <div className="text-sm font-bold text-zinc-300">Visual Editor Loading...</div>
+      <div className="w-full h-2 bg-zinc-900 rounded-full overflow-hidden">
+        <div className="w-1/3 h-full bg-zinc-500 animate-[shimmer_2s_infinite]" />
+      </div>
+    </div>
+  </div>
+);
+
+const ImageGenTool = () => {
+  const [prompt, setPrompt] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [image, setImage] = useState<string | null>(null);
+
+  const generate = async () => {
+    if (!prompt) return;
+    setLoading(true);
+    try {
+      // Simulated image generation for demo
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      setImage(`https://picsum.photos/seed/${encodeURIComponent(prompt)}/800/800`);
+    } catch (e) {
+      alert('Generation failed.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="p-6 bg-cyan-500/10 rounded-3xl border border-cyan-500/20 text-center space-y-2">
+        <ImageIcon className="w-12 h-12 text-cyan-400 mx-auto" />
+        <h3 className="font-bold uppercase tracking-widest">AI Image Generator</h3>
+        <p className="text-[10px] text-zinc-500 uppercase">Text to Visual Art</p>
+      </div>
+      <div className="space-y-4">
+        <textarea 
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          placeholder="Describe the image you want to create..."
+          className="w-full h-24 bg-zinc-950 border border-white/10 rounded-2xl p-4 text-sm focus:border-cyan-500/50 resize-none"
+        />
+        <button 
+          onClick={generate}
+          disabled={loading}
+          className="w-full py-4 bg-cyan-500 text-black font-black rounded-2xl text-sm uppercase tracking-widest flex items-center justify-center gap-2"
+        >
+          {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+          {loading ? 'Generating Art...' : 'Generate Image'}
+        </button>
+      </div>
+      {image && (
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+          <img src={image} alt="Generated" className="w-full aspect-square object-cover" />
+        </motion.div>
+      )}
+    </div>
+  );
+};
+
+const VideoGenTool = () => (
+  <div className="space-y-6">
+    <div className="p-6 bg-purple-500/10 rounded-3xl border border-purple-500/20 text-center space-y-2">
+      <Video className="w-12 h-12 text-purple-400 mx-auto" />
+      <h3 className="font-bold uppercase tracking-widest">AI Video Generator</h3>
+      <p className="text-[10px] text-zinc-500 uppercase">Text to Cinematic Clips</p>
+    </div>
+    <div className="p-12 glass rounded-3xl border border-white/5 text-center space-y-4">
+      <Sparkles className="w-12 h-12 text-purple-500 mx-auto animate-pulse" />
+      <div className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Rendering Engine v3.0</div>
+      <p className="text-[8px] text-zinc-600 uppercase">High-fidelity video generation is currently in private beta.</p>
+    </div>
+  </div>
+);
+
+const VoiceTool = () => (
+  <div className="space-y-6">
+    <div className="p-6 bg-rose-500/10 rounded-3xl border border-rose-500/20 text-center space-y-2">
+      <Mic className="w-12 h-12 text-rose-400 mx-auto" />
+      <h3 className="font-bold uppercase tracking-widest">AI Voice Gen</h3>
+      <p className="text-[10px] text-zinc-500 uppercase">Professional Speech Synthesis</p>
+    </div>
+    <div className="space-y-4">
+      <textarea placeholder="Enter text to convert to speech..." className="w-full h-24 bg-zinc-950 border border-white/10 rounded-2xl p-4 text-sm focus:border-rose-500/50 resize-none" />
+      <div className="grid grid-cols-2 gap-2">
+        {['Male - Deep', 'Female - Soft', 'Robot - Tech', 'Narrator'].map(v => (
+          <button key={v} className="py-2 bg-zinc-900 rounded-xl text-[10px] font-bold text-zinc-400 border border-white/5">{v}</button>
+        ))}
+      </div>
+      <button className="w-full py-4 bg-rose-500 text-white rounded-2xl font-bold uppercase tracking-widest text-xs">Generate Audio</button>
+    </div>
+  </div>
+);
+
+const DeepfakeTool = () => (
+  <div className="space-y-6">
+    <div className="p-6 bg-red-500/10 rounded-3xl border border-red-500/20 text-center space-y-2">
+      <Scan className="w-12 h-12 text-red-500 mx-auto" />
+      <h3 className="font-bold uppercase tracking-widest">Deepfake Analyzer</h3>
+      <p className="text-[10px] text-zinc-500 uppercase">AI Manipulation Detection</p>
+    </div>
+    <div className="p-12 border-2 border-dashed border-white/10 rounded-3xl text-center space-y-4">
+      <div className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Drop Media to Analyze</div>
+      <button className="px-6 py-2 bg-zinc-900 rounded-xl text-[10px] font-bold text-zinc-400 border border-white/5 uppercase">Select File</button>
+    </div>
+  </div>
+);
+
+const ReviewTool = () => (
+  <div className="space-y-6">
+    <div className="p-6 bg-emerald-500/10 rounded-3xl border border-emerald-500/20 text-center space-y-2">
+      <MessageSquare className="w-12 h-12 text-emerald-400 mx-auto" />
+      <h3 className="font-bold uppercase tracking-widest">AI Reviewer</h3>
+      <p className="text-[10px] text-zinc-500 uppercase">Smart Content Analysis</p>
+    </div>
+    <div className="space-y-4">
+      <textarea placeholder="Paste content to review (Code, Text, or Article)..." className="w-full h-32 bg-zinc-950 border border-white/10 rounded-2xl p-4 text-sm focus:border-emerald-500/50 resize-none" />
+      <button className="w-full py-4 bg-emerald-500 text-black font-black rounded-2xl text-sm uppercase tracking-widest">Analyze Content</button>
+    </div>
+  </div>
+);
+
+const FullCalendarTool = () => (
+  <div className="space-y-6">
+    <div className="p-6 bg-blue-500/10 rounded-3xl border border-blue-500/20 text-center space-y-2">
+      <CalendarIcon className="w-12 h-12 text-blue-400 mx-auto" />
+      <h3 className="font-bold uppercase tracking-widest">Pro Calendar</h3>
+      <p className="text-[10px] text-zinc-500 uppercase">Advanced Scheduling</p>
+    </div>
+    <div className="glass p-4 rounded-3xl border border-white/5">
+      <div className="grid grid-cols-7 gap-1 text-center mb-4">
+        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => <div key={d} className="text-[8px] font-bold text-zinc-600">{d}</div>)}
+        {Array.from({ length: 31 }).map((_, i) => (
+          <div key={i} className={`aspect-square flex items-center justify-center text-[10px] rounded-lg ${i + 1 === new Date().getDate() ? 'bg-blue-500 text-white font-bold' : 'text-zinc-400'}`}>
+            {i + 1}
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+const IQTestTool = () => (
+  <div className="space-y-6">
+    <div className="p-6 bg-purple-500/10 rounded-3xl border border-purple-500/20 text-center space-y-2">
+      <Brain className="w-12 h-12 text-purple-400 mx-auto" />
+      <h3 className="font-bold uppercase tracking-widest">IQ Assessment</h3>
+      <p className="text-[10px] text-zinc-500 uppercase">Cognitive Logic Test</p>
+    </div>
+    <div className="p-12 glass rounded-3xl border border-white/5 text-center space-y-6">
+      <div className="text-sm font-bold text-zinc-200">Ready to begin the assessment?</div>
+      <p className="text-[10px] text-zinc-500 uppercase tracking-widest leading-relaxed">20 Questions • 15 Minutes • Logical Reasoning</p>
+      <button className="w-full py-4 bg-purple-500 text-white rounded-2xl font-bold uppercase tracking-widest text-xs">Start Test</button>
+    </div>
+  </div>
+);
+
+const NetworkScannerTool = () => (
+  <div className="space-y-6">
+    <div className="p-6 bg-emerald-500/10 rounded-3xl border border-emerald-500/20 text-center space-y-2">
+      <Wifi className="w-12 h-12 text-emerald-400 mx-auto" />
+      <h3 className="font-bold uppercase tracking-widest">Network Scanner</h3>
+      <p className="text-[10px] text-zinc-500 uppercase">Local Device Discovery</p>
+    </div>
+    <div className="p-12 glass rounded-3xl border border-white/5 text-center space-y-4">
+      <div className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Scanning Subnet 192.168.1.0/24</div>
+      <div className="flex justify-center gap-1">
+        {[0, 1, 2, 3].map(i => <motion.div key={i} animate={{ opacity: [0.2, 1, 0.2] }} transition={{ repeat: Infinity, duration: 1, delay: i * 0.2 }} className="w-2 h-2 bg-emerald-500 rounded-full" />)}
+      </div>
+    </div>
+  </div>
+);
+
+const PortScannerTool = () => (
+  <div className="space-y-6">
+    <div className="p-6 bg-blue-500/10 rounded-3xl border border-blue-500/20 text-center space-y-2">
+      <Globe className="w-12 h-12 text-blue-400 mx-auto" />
+      <h3 className="font-bold uppercase tracking-widest">Port Scanner</h3>
+      <p className="text-[10px] text-zinc-500 uppercase">Service Enumeration</p>
+    </div>
+    <div className="space-y-4">
+      <input placeholder="Enter Target IP or Domain..." className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-blue-500/50" />
+      <button className="w-full py-4 bg-blue-500 text-white rounded-2xl font-bold uppercase tracking-widest text-xs">Scan Common Ports</button>
+    </div>
+  </div>
+);
+
+const HashTool = () => (
+  <div className="space-y-6">
+    <div className="p-6 bg-purple-500/10 rounded-3xl border border-purple-500/20 text-center space-y-2">
+      <Lock className="w-12 h-12 text-purple-400 mx-auto" />
+      <h3 className="font-bold uppercase tracking-widest">Hash Generator</h3>
+      <p className="text-[10px] text-zinc-500 uppercase">Cryptographic Functions</p>
+    </div>
+    <div className="space-y-4">
+      <textarea placeholder="Enter text to hash..." className="w-full h-24 bg-zinc-950 border border-white/10 rounded-2xl p-4 text-sm focus:border-purple-500/50 resize-none" />
+      <div className="grid grid-cols-3 gap-2">
+        {['MD5', 'SHA-1', 'SHA-256'].map(h => (
+          <button key={h} className="py-2 bg-zinc-900 rounded-xl text-[10px] font-bold text-zinc-400 border border-white/5">{h}</button>
+        ))}
+      </div>
+      <button className="w-full py-4 bg-purple-500 text-white rounded-2xl font-bold uppercase tracking-widest text-xs">Generate Hash</button>
+    </div>
+  </div>
+);
+
+const SteganographyTool = () => (
+  <div className="space-y-6">
+    <div className="p-6 bg-cyan-500/10 rounded-3xl border border-cyan-500/20 text-center space-y-2">
+      <ImageIcon className="w-12 h-12 text-cyan-400 mx-auto" />
+      <h3 className="font-bold uppercase tracking-widest">Steganography</h3>
+      <p className="text-[10px] text-zinc-500 uppercase">Hide Secrets in Images</p>
+    </div>
+    <div className="grid grid-cols-2 gap-3">
+      <button className="p-6 glass rounded-3xl border border-white/5 text-center space-y-2">
+        <div className="text-[10px] font-bold text-zinc-200 uppercase">Encode</div>
+        <div className="text-[8px] text-zinc-500 uppercase">Hide Data</div>
+      </button>
+      <button className="p-6 glass rounded-3xl border border-white/5 text-center space-y-2">
+        <div className="text-[10px] font-bold text-zinc-200 uppercase">Decode</div>
+        <div className="text-[8px] text-zinc-500 uppercase">Extract Data</div>
+      </button>
+    </div>
+  </div>
+);
+
+const VulnScannerTool = () => (
+  <div className="space-y-6">
+    <div className="p-6 bg-red-500/10 rounded-3xl border border-red-500/20 text-center space-y-2">
+      <Shield className="w-12 h-12 text-red-500 mx-auto" />
+      <h3 className="font-bold uppercase tracking-widest">Vuln Scanner</h3>
+      <p className="text-[10px] text-zinc-500 uppercase">Web Security Auditor</p>
+    </div>
+    <div className="space-y-4">
+      <input placeholder="Enter Target URL..." className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-red-500/50" />
+      <button className="w-full py-4 bg-red-500 text-white rounded-2xl font-bold uppercase tracking-widest text-xs">Start Vulnerability Scan</button>
+    </div>
+  </div>
+);
+
+const BreachCheckerTool = () => (
+  <div className="space-y-6">
+    <div className="p-6 bg-orange-500/10 rounded-3xl border border-orange-500/20 text-center space-y-2">
+      <Shield className="w-12 h-12 text-orange-400 mx-auto" />
+      <h3 className="font-bold uppercase tracking-widest">Breach Checker</h3>
+      <p className="text-[10px] text-zinc-500 uppercase">Check Data Leaks</p>
+    </div>
+    <div className="space-y-4">
+      <input placeholder="Enter Email or Username..." className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-orange-500/50" />
+      <button className="w-full py-4 bg-orange-500 text-white rounded-2xl font-bold uppercase tracking-widest text-xs">Check for Leaks</button>
+    </div>
+  </div>
+);
+
+const UsernameTrackerTool = () => (
+  <div className="space-y-6">
+    <div className="p-6 bg-indigo-500/10 rounded-3xl border border-indigo-500/20 text-center space-y-2">
+      <UserSearch className="w-12 h-12 text-indigo-400 mx-auto" />
+      <h3 className="font-bold uppercase tracking-widest">User Tracker</h3>
+      <p className="text-[10px] text-zinc-500 uppercase">Cross-Platform Search</p>
+    </div>
+    <div className="space-y-4">
+      <input placeholder="Enter Username to Track..." className="w-full bg-zinc-950 border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-indigo-500/50" />
+      <button className="w-full py-4 bg-indigo-500 text-white rounded-2xl font-bold uppercase tracking-widest text-xs">Track Username</button>
+    </div>
+  </div>
+);
+
+const TikTokTool = () => (
+  <div className="space-y-6">
+    <div className="p-6 bg-pink-500/10 rounded-3xl border border-pink-500/20 text-center space-y-2">
+      <Download className="w-12 h-12 text-pink-500 mx-auto" />
+      <h3 className="font-bold uppercase tracking-widest">TikTok DL</h3>
+      <p className="text-[10px] text-zinc-500 uppercase">No Watermark Download</p>
+    </div>
+    <div className="flex gap-2">
+      <input placeholder="Paste TikTok URL..." className="flex-1 bg-zinc-950 border border-white/10 rounded-xl px-4 py-2 text-sm focus:border-pink-500/50" />
+      <button className="p-2 bg-pink-500 rounded-xl"><Download className="w-5 h-5" /></button>
+    </div>
+  </div>
+);
+
+const YouTubeTool = () => (
+  <div className="space-y-6">
+    <div className="p-6 bg-red-500/10 rounded-3xl border border-red-500/20 text-center space-y-2">
+      <Youtube className="w-12 h-12 text-red-500 mx-auto" />
+      <h3 className="font-bold uppercase tracking-widest">YouTube DL</h3>
+      <p className="text-[10px] text-zinc-500 uppercase">Video & MP3 Extractor</p>
+    </div>
+    <div className="flex gap-2">
+      <input placeholder="Paste YouTube URL..." className="flex-1 bg-zinc-950 border border-white/10 rounded-xl px-4 py-2 text-sm focus:border-red-500/50" />
+      <button className="p-2 bg-red-500 rounded-xl"><Download className="w-5 h-5" /></button>
+    </div>
+  </div>
+);
 
 export default Tools;

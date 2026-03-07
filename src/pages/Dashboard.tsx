@@ -21,7 +21,8 @@ import {
   Smartphone,
   Bell,
   ShieldAlert,
-  Info
+  Info,
+  X
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -30,11 +31,19 @@ const Dashboard: React.FC = memo(() => {
   const [testing, setTesting] = useState(false);
   const [showMatrix, setShowMatrix] = useState(false);
   const [optimizing, setOptimizing] = useState(false);
+  const [broadcast, setBroadcast] = useState<any>(null);
   const [notifications, setNotifications] = useState([
     { id: 1, type: 'security', msg: 'X Zero-Antivirus: System Secure', time: 'Just now' },
     { id: 2, type: 'info', msg: 'New version v2.5.0 available', time: '2h ago' },
     { id: 3, type: 'warning', msg: 'High CPU usage detected in Core', time: '5h ago' },
   ]);
+
+  useEffect(() => {
+    const savedBroadcast = localStorage.getItem('nano_system_broadcast');
+    if (savedBroadcast) {
+      setBroadcast(JSON.parse(savedBroadcast));
+    }
+  }, []);
 
   const testAll = () => {
     setTesting(true);
@@ -66,6 +75,44 @@ const Dashboard: React.FC = memo(() => {
       </div>
 
       {showMatrix && <MatrixBackground />}
+
+      {/* System Broadcast */}
+      <AnimatePresence>
+        {broadcast && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="relative overflow-hidden glass p-6 rounded-[2.5rem] border border-emerald-500/30 bg-emerald-500/5"
+          >
+            <div className="absolute top-0 right-0 p-4">
+              <button 
+                onClick={() => {
+                  setBroadcast(null);
+                  localStorage.removeItem('nano_system_broadcast');
+                }}
+                className="p-1 hover:bg-white/10 rounded-full transition-colors"
+              >
+                <X className="w-4 h-4 text-zinc-500" />
+              </button>
+            </div>
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-emerald-500/20 rounded-2xl">
+                <Bell className="w-6 h-6 text-emerald-500 animate-bounce" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">System Broadcast</span>
+                  <span className="text-[8px] text-zinc-600 font-mono">{broadcast.time}</span>
+                </div>
+                <p className="text-sm text-zinc-200 font-medium leading-relaxed">
+                  {broadcast.msg}
+                </p>
+                <div className="text-[8px] text-zinc-500 uppercase tracking-widest font-bold mt-2">— {broadcast.author}</div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Owner Profile Section */}
       <section className="glass p-6 rounded-[2.5rem] border border-emerald-500/20 bg-emerald-500/[0.02] relative overflow-hidden">

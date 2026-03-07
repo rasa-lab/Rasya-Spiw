@@ -19,6 +19,10 @@ import {
   Shield,
   Loader2,
   LogIn,
+  Smartphone,
+  Wifi,
+  Trophy,
+  Download,
   ShieldAlert
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -28,7 +32,7 @@ import OwnerPanel from '../components/OwnerPanel';
 const Settings: React.FC = () => {
   const { config, updateConfig } = useConfig();
   const { user, logout } = useAuth();
-  const [activeSubTool, setActiveSubTool] = useState<'none' | 'files' | 'report' | 'chat' | 'monitor' | 'request' | 'owner'>('none');
+  const [activeSubTool, setActiveSubTool] = useState<'none' | 'files' | 'report' | 'chat' | 'monitor' | 'request' | 'owner' | 'download' | 'panel-ff' | 'status'>('none');
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const handleSave = (e: React.FormEvent) => {
@@ -106,6 +110,9 @@ const Settings: React.FC = () => {
                 )}
                 {[
                   { id: 'files', name: 'File Manager', icon: Folder, desc: 'Manage system assets' },
+                  { id: 'download', name: 'Download App', icon: Download, desc: 'Get Nano Suite for Android' },
+                  { id: 'panel-ff', name: 'Panel Free Free', icon: Smartphone, desc: 'Exclusive Mobile Tools' },
+                  { id: 'status', name: 'Real Time Status', icon: Activity, desc: 'Global Activity Feed' },
                   { id: 'report', name: 'Report Issue', icon: MessageSquare, desc: 'Contact Admin/Owner' },
                   { id: 'chat', name: 'Group Chat', icon: Users, desc: 'Global community chat' },
                   { id: 'monitor', name: 'System Monitor', icon: Activity, desc: 'Real-time performance' },
@@ -272,6 +279,9 @@ const Settings: React.FC = () => {
             className="glass rounded-[2.5rem] p-6 border border-white/5 min-h-[500px]"
           >
             {activeSubTool === 'files' && <FileManager />}
+            {activeSubTool === 'download' && <DownloadApp />}
+            {activeSubTool === 'panel-ff' && <PanelFreeFree />}
+            {activeSubTool === 'status' && <RealTimeStatus />}
             {activeSubTool === 'report' && <ReportIssue user={user} />}
             {activeSubTool === 'chat' && <GroupChat user={user} />}
             {activeSubTool === 'monitor' && <SystemMonitor />}
@@ -539,6 +549,121 @@ const RequestFeature = ({ user }: { user: any }) => {
           {isSending ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Submit Request'}
         </button>
       </form>
+    </div>
+  );
+};
+
+const DownloadApp = () => (
+  <div className="space-y-8 text-center py-8">
+    <div className="relative inline-block">
+      <div className="absolute inset-0 bg-emerald-500/20 blur-3xl rounded-full animate-pulse" />
+      <div className="relative p-8 bg-zinc-950 border border-emerald-500/30 rounded-[3rem]">
+        <Download className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
+        <h3 className="text-xl font-black text-white uppercase tracking-widest">Nano Suite Mobile</h3>
+        <p className="text-xs text-zinc-500 mt-2">Version 2.4.0-Stable</p>
+      </div>
+    </div>
+    
+    <div className="space-y-4 max-w-xs mx-auto">
+      <div className="p-4 glass rounded-2xl border border-white/5 text-left space-y-2">
+        <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Requirements</div>
+        <ul className="text-[10px] text-zinc-400 space-y-1">
+          <li>• Android 8.0 or higher</li>
+          <li>• 100MB Free Storage</li>
+          <li>• Internet Connection</li>
+        </ul>
+      </div>
+      
+      <button className="w-full py-5 bg-emerald-500 text-black rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-xl shadow-emerald-500/20 active:scale-95 transition-all">
+        Download APK Now
+      </button>
+    </div>
+  </div>
+);
+
+const PanelFreeFree = () => (
+  <div className="space-y-6">
+    <div className="p-6 bg-red-500/10 rounded-3xl border border-red-500/20 text-center space-y-2">
+      <Smartphone className="w-12 h-12 text-red-500 mx-auto" />
+      <h3 className="font-bold uppercase tracking-widest">Panel Free Free</h3>
+      <p className="text-[10px] text-zinc-500 uppercase">Hanya tersedia di Aplikasi Nano Suite</p>
+    </div>
+    
+    <div className="grid grid-cols-1 gap-3">
+      {[
+        { name: 'Anti-Ban Bypass', status: 'LOCKED', desc: 'Requires Mobile App' },
+        { name: 'Spam Killer', status: 'LOCKED', desc: 'Requires Mobile App' },
+        { name: 'No Damage Mode', status: 'LOCKED', desc: 'Requires Mobile App' },
+        { name: 'Auto Headshot', status: 'LOCKED', desc: 'Requires Mobile App' },
+      ].map((f, i) => (
+        <div key={i} className="p-4 glass rounded-2xl border border-white/5 flex items-center justify-between opacity-50 grayscale">
+          <div>
+            <div className="text-xs font-bold text-white">{f.name}</div>
+            <div className="text-[8px] text-zinc-500 uppercase">{f.desc}</div>
+          </div>
+          <div className="px-3 py-1 bg-zinc-900 rounded-lg text-[8px] font-bold text-zinc-500">{f.status}</div>
+        </div>
+      ))}
+    </div>
+    
+    <div className="p-4 bg-zinc-900/50 rounded-2xl border border-white/5 text-center">
+      <p className="text-[10px] text-zinc-400 leading-relaxed italic">
+        "Keunggulan: No Simulation, No Demonstration, Real Time, Real Fitur."
+      </p>
+    </div>
+  </div>
+);
+
+const RealTimeStatus = () => {
+  const [logs, setLogs] = useState([
+    { user: 'Budi', action: 'berhasil unclock wifi', time: '1m ago' },
+    { user: 'CyberX', action: 'scanning network', time: '3m ago' },
+    { user: 'Admin', action: 'updated firewall', time: '5m ago' },
+    { user: 'User99', action: 'downloaded resource pack', time: '8m ago' },
+  ]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const users = ['Andi', 'Siti', 'Rizky', 'Dewi', 'Budi', 'NanoUser'];
+      const actions = ['berhasil unclock wifi', 'scanning network', 'connected to VPN', 'generated premium account', 'won XOX game'];
+      const newLog = {
+        user: users[Math.floor(Math.random() * users.length)],
+        action: actions[Math.floor(Math.random() * actions.length)],
+        time: 'Just now'
+      };
+      setLogs(prev => [newLog, ...prev.slice(0, 9)]);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3 mb-4">
+        <Activity className="w-6 h-6 text-emerald-400" />
+        <h3 className="text-lg font-bold uppercase tracking-widest">Real Time Status</h3>
+      </div>
+      <div className="space-y-3">
+        {logs.map((log, i) => (
+          <motion.div 
+            key={i}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="p-4 bg-zinc-950/50 border border-white/5 rounded-2xl flex items-center justify-between group hover:border-emerald-500/30 transition-all"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-[10px] font-bold text-emerald-500">
+                {log.user[0]}
+              </div>
+              <div>
+                <div className="text-xs font-bold text-zinc-200">
+                  <span className="text-emerald-400">{log.user}</span> {log.action}
+                </div>
+                <div className="text-[8px] text-zinc-600 uppercase tracking-widest">{log.time}</div>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
 };

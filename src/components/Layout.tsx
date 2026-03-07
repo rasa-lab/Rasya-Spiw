@@ -4,11 +4,12 @@ import {
   LayoutDashboard, 
   Wrench, 
   Activity, 
-  Info, 
-  MoreHorizontal, 
-  MessageSquare,
-  Settings,
-  Cpu
+  Users, 
+  Settings, 
+  Cpu, 
+  Star, 
+  MoreHorizontal,
+  MessageSquare
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { clsx, type ClassValue } from 'clsx';
@@ -25,9 +26,8 @@ export const Layout: React.FC = React.memo(() => {
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
     { icon: Wrench, label: 'Tools', path: '/tools' },
-    { icon: Activity, label: 'Live Data', path: '/live' },
-    { icon: MessageSquare, label: 'AI Chat', path: '/chat' },
-    { icon: Info, label: 'Special', path: '/special' },
+    { icon: Star, label: 'Special', path: '/special' },
+    { icon: MessageSquare, label: 'Group', path: '/group' },
     { icon: MoreHorizontal, label: 'Others', path: '/others' },
   ];
 
